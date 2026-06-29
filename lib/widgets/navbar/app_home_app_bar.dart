@@ -74,51 +74,30 @@ class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             GestureDetector(
               onTap: onNotificationTap,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 44.w,
-                    height: 44.w,
-                    padding: EdgeInsets.all(10.w),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColor.whiteColor,
-                      border: Border.all(
-                        color: AppColor.primaryBlue.withValues(alpha: 0.25),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Image.asset(
-                      AssetIcons.notii,
-                      color: AppColor.primaryBlue,
-                      width: 22.w,
-                      height: 22.h,
-                    ),
+              child: Container(
+                width: 44.w,
+                height: 44.w,
+                padding: EdgeInsets.all(10.w),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColor.whiteColor,
+                  border: Border.all(
+                    color: AppColor.primaryBlue.withValues(alpha: 0.25),
                   ),
-                  Positioned(
-                    top: 2.h,
-                    right: 2.w,
-                    child: Container(
-                      width: 10.w,
-                      height: 10.w,
-                      decoration: BoxDecoration(
-                        color: AppColor.primaryBlue,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColor.whiteColor,
-                          width: 2,
-                        ),
-                      ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Image.asset(
+                  AssetIcons.notii,
+                  color: AppColor.primaryBlue,
+                  width: 22.w,
+                  height: 22.h,
+                ),
               ),
             ),
           ],

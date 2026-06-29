@@ -4,16 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 
+enum ReminderClockMode { add, edit }
+
 class SetClockBottomSheet extends StatefulWidget {
   const SetClockBottomSheet({
     super.key,
     required this.onNext,
+    this.mode = ReminderClockMode.add,
     this.initialHour = 7,
     this.initialMinute = 0,
     this.initialIsAm = true,
   });
 
   final VoidCallback onNext;
+  final ReminderClockMode mode;
   final int initialHour;
   final int initialMinute;
   final bool initialIsAm;
@@ -21,6 +25,7 @@ class SetClockBottomSheet extends StatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required VoidCallback onNext,
+    ReminderClockMode mode = ReminderClockMode.add,
     int initialHour = 7,
     int initialMinute = 0,
     bool initialIsAm = true,
@@ -31,6 +36,7 @@ class SetClockBottomSheet extends StatefulWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => SetClockBottomSheet(
         onNext: onNext,
+        mode: mode,
         initialHour: initialHour,
         initialMinute: initialMinute,
         initialIsAm: initialIsAm,
@@ -62,6 +68,10 @@ class _SetClockBottomSheetState extends State<SetClockBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isEdit = widget.mode == ReminderClockMode.edit;
+    final title = isEdit ? 'Edit Reminder' : 'Set Clock';
+    final actionLabel = isEdit ? 'Save' : 'Next';
+
     return Container(
       decoration: BoxDecoration(
         color: AppColor.primaryBlue,
@@ -83,7 +93,7 @@ class _SetClockBottomSheetState extends State<SetClockBottomSheet> {
             ),
             16.verticalSpace,
             Text(
-              'Set Clock',
+              title,
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
@@ -187,7 +197,7 @@ class _SetClockBottomSheetState extends State<SetClockBottomSheet> {
                   ),
                 ),
                 child: Text(
-                  'Next',
+                  actionLabel,
                   style: TextStyle(
                     fontSize: 17.sp,
                     fontWeight: FontWeight.w700,

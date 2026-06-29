@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
+import 'package:freedom_smile/utils/assets_icons.dart';
 
 class ProfileUpdatedDialog extends StatelessWidget {
   const ProfileUpdatedDialog({super.key, required this.onContinue});
@@ -46,6 +47,15 @@ class ProfileUpdatedDialog extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 24.h),
           decoration: BoxDecoration(
             color: AppColor.whiteColor,
+            gradient: LinearGradient(
+              colors: [
+                Color(0xffFFFFFF),
+                Color.fromARGB(255, 221, 243, 255),
+                Color.fromARGB(255, 190, 232, 255),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
@@ -92,10 +102,11 @@ class ProfileUpdatedDialog extends StatelessWidget {
                   color: AppColor.primaryBlue,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.thumb_up_alt_rounded,
+                padding: EdgeInsets.all(18.w),
+                child: Image.asset(
+                  AssetIcons.thumb,
                   color: AppColor.whiteColor,
-                  size: 34.sp,
+                  fit: BoxFit.contain,
                 ),
               ),
               20.verticalSpace,

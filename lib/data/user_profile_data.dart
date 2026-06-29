@@ -59,7 +59,7 @@ class UserProfile {
 
   static const sample = UserProfile(
     displayName: 'Anderson Roy',
-    profileEmail: 'anderson.roy@domain.com',
+    profileEmail: 'roy@domain.com',
     firstName: 'William',
     lastName: 'Roy',
     address:
@@ -67,7 +67,7 @@ class UserProfile {
     city: 'Albany',
     state: 'New York',
     gender: 'Male',
-    email: 'william.roy@domain.com',
+    email: 'roy@domain.com',
     countryCode: '+1',
     phone: '234 567 890',
   );

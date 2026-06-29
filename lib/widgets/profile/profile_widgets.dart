@@ -116,8 +116,9 @@ class ProfileInfoRow extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(vertical: 14.h),
           child: Row(
-            crossAxisAlignment:
-                multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+            crossAxisAlignment: multiline
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
             children: [
               SizedBox(
                 width: 110.w,
@@ -257,15 +258,15 @@ class ProfileFormField extends StatelessWidget {
                 child: suffix,
               ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(9999999.r),
           borderSide: const BorderSide(color: AppColor.primaryBlue),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(9999999.r),
           borderSide: const BorderSide(color: AppColor.primaryBlue),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(9999999.r),
           borderSide: const BorderSide(color: AppColor.primaryBlue, width: 1.5),
         ),
       ),
@@ -293,7 +294,7 @@ class ProfileDropdownField extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       decoration: BoxDecoration(
         color: AppColor.profileOptionBg.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(9999999.r),
         border: Border.all(color: AppColor.primaryBlue),
       ),
       child: DropdownButtonHideUnderline(
@@ -324,10 +325,8 @@ class ProfileDropdownField extends StatelessWidget {
           ),
           items: items
               .map(
-                (item) => DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item),
-                ),
+                (item) =>
+                    DropdownMenuItem<String>(value: item, child: Text(item)),
               )
               .toList(),
           onChanged: onChanged,

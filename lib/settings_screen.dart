@@ -4,6 +4,9 @@ import 'package:freedom_smile/change_password_screen.dart';
 import 'package:freedom_smile/delete_account_screen.dart';
 import 'package:freedom_smile/faqs_screen.dart';
 import 'package:freedom_smile/profile_view_screen.dart';
+import 'package:freedom_smile/appointments_screen.dart';
+import 'package:freedom_smile/chat_list_screen.dart';
+import 'package:freedom_smile/set_reminder_home.dart';
 import 'package:freedom_smile/chat_support_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
@@ -54,7 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icons.chat_bubble_outline_rounded,
               title: 'Chat',
               subtitle: 'Start chat with your orthodontist',
-              onTap: () => Get.to(() => const ChatSupportScreen()),
+              onTap: () => Get.to(() => const ChatListScreen()),
             ),
             20.verticalSpace,
             const _SectionLabel('Appointment'),
@@ -63,7 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               iconAsset: AssetIcons.teeth1,
               title: 'Scheduled Appointments',
               subtitle: 'Get Detailed of your appointments',
-              onTap: () {},
+              onTap: () => Get.to(() => const AppointmentsScreen()),
             ),
             20.verticalSpace,
             const _SectionLabel('Reminder'),
@@ -72,7 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               iconAsset: AssetIcons.night,
               title: 'Your Reminder',
               subtitle: '10:00 PM (Night)',
-              onTap: () {},
+              onTap: () => Get.to(() => const SetReminderHome()),
             ),
             20.verticalSpace,
             const _SectionLabel('Language Preference'),
