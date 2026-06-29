@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/about_app_screen.dart';
+import 'package:freedom_smile/agreements.dart';
 import 'package:freedom_smile/change_password_screen.dart';
 import 'package:freedom_smile/delete_account_screen.dart';
 import 'package:freedom_smile/faqs_screen.dart';
@@ -121,6 +123,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Delete Account',
               subtitle: 'Delete your account',
               onTap: () => Get.to(() => const DeleteAccountScreen()),
+            ),
+            20.verticalSpace,
+            const _SectionLabel('Agreements'),
+            10.verticalSpace,
+            _SettingsActionTile(
+              icon: Icons.description_rounded,
+              title: 'Agreements',
+              subtitle: 'View our agreements',
+              onTap: () => Get.to(() => const AgreementsScreen()),
+            ),
+            20.verticalSpace,
+            const _SectionLabel('About App'),
+            10.verticalSpace,
+            _SettingsActionTile(
+              icon: Icons.app_registration_rounded,
+              title: 'About App',
+              subtitle: 'View information about the app',
+              onTap: () => Get.to(() => const AboutAppScreen()),
             ),
           ],
         ),
