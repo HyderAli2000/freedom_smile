@@ -16,25 +16,10 @@ class _SplashOtherState extends State<SplashOther> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  static const _pages = <_OnboardingPageData>[
-    _OnboardingPageData(
-      image: AssetImages.splash2,
-      title: 'Keep Your Smile in Shape',
-      description:
-          'Never miss a day of wearing your retainer with smart daily reminders. Build healthy habits that protect your smile long-term.',
-    ),
-    _OnboardingPageData(
-      image: AssetImages.splash3,
-      title: 'Manage & Replace with Ease',
-      description:
-          'Track your retainer usage and get notified when it\'s time for a replacement. Order new retainers quickly without hassle or delays.',
-    ),
-    _OnboardingPageData(
-      image: AssetImages.splash4,
-      title: 'Stay Connected with Your Orthodontist',
-      description:
-          'Easily book appointments and stay in touch with your clinic anytime. Get guidance and support throughout your retention journey.',
-    ),
+  static const _pageImages = [
+    AssetImages.splash2,
+    AssetImages.splash3,
+    AssetImages.splash4,
   ];
 
   @override
@@ -62,17 +47,20 @@ class _SplashOtherState extends State<SplashOther> {
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
-                    itemCount: _pages.length,
+                    itemCount: _pageImages.length,
                     onPageChanged: (index) {
                       setState(() => _currentPage = index);
                     },
                     itemBuilder: (context, index) {
-                      return _OnboardingPage(data: _pages[index]);
+                      return _OnboardingPage(
+                        image: _pageImages[index],
+                        pageIndex: index,
+                      );
                     },
                   ),
                 ),
                 _PageIndicator(
-                  count: _pages.length,
+                  count: _pageImages.length,
                   currentIndex: _currentPage,
                 ),
                 SizedBox(height: 24.h),
@@ -116,7 +104,7 @@ class _OnboardingHeader extends StatelessWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: Text(
-                'Skip',
+                'skip'.tr,
                 style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
               ),
             ),
@@ -128,21 +116,25 @@ class _OnboardingHeader extends StatelessWidget {
 }
 
 class _OnboardingPage extends StatelessWidget {
-  const _OnboardingPage({required this.data});
+  const _OnboardingPage({required this.image, required this.pageIndex});
 
-  final _OnboardingPageData data;
+  final String image;
+  final int pageIndex;
 
   @override
   Widget build(BuildContext context) {
+    final titleKey = 'onboarding_title_${pageIndex + 1}';
+    final descKey = 'onboarding_desc_${pageIndex + 1}';
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
           40.verticalSpace,
-          Image.asset(data.image, fit: BoxFit.contain),
+          Image.asset(image, fit: BoxFit.contain),
           40.verticalSpace,
           Text(
-            data.title,
+            titleKey.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 26.sp,
@@ -153,7 +145,7 @@ class _OnboardingPage extends StatelessWidget {
           ),
           16.verticalSpace,
           Text(
-            data.description,
+            descKey.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15.sp,
@@ -196,16 +188,4 @@ class _PageIndicator extends StatelessWidget {
       }),
     );
   }
-}
-
-class _OnboardingPageData {
-  const _OnboardingPageData({
-    required this.image,
-    required this.title,
-    required this.description,
-  });
-
-  final String image;
-  final String title;
-  final String description;
 }

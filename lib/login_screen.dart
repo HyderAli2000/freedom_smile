@@ -35,21 +35,21 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AuthSectionTitle(
-            title: 'Login',
-            subtitle: 'Enter your Credentials',
+          AuthSectionTitle(
+            title: 'login'.tr,
+            subtitle: 'enter_credentials'.tr,
           ),
           28.verticalSpace,
           AuthInputField(
             controller: _emailController,
-            hintText: 'Enter Email Address',
+            hintText: 'enter_email_address'.tr,
             prefixIcon: Icons.email_rounded,
             keyboardType: TextInputType.emailAddress,
           ),
           16.verticalSpace,
           AuthInputField(
             controller: _passwordController,
-            hintText: 'Enter Password',
+            hintText: 'enter_password'.tr,
             prefixIcon: Icons.lock_rounded,
             obscureText: _obscurePassword,
             suffixIcon: IconButton(
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               8.horizontalSpace,
               Text(
-                'Remember me',
+                'remember_me'.tr,
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w400,
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
               GestureDetector(
                 onTap: () => Get.to(() => const ForgetPasswordScreen()),
                 child: Text(
-                  'Forgot Password?',
+                  'forgot_password'.tr,
                   style: TextStyle(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
@@ -117,13 +117,13 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           28.verticalSpace,
           AuthPrimaryButton(
-            label: 'Login',
+            label: 'login'.tr,
             onPressed: () => Get.offAll(() => Navbar()),
           ),
           20.verticalSpace,
           AuthLinkText(
-            prefix: "Don't have an account? ",
-            linkText: 'Sign Up',
+            prefix: 'dont_have_account'.tr,
+            linkText: 'sign_up'.tr,
             onTap: () => Get.to(() => const SignUpScreen()),
             center: true,
           ),
@@ -134,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Expanded(
                 child: AuthSocialButton(
-                  label: 'With Apple',
+                  label: 'with_apple'.tr,
                   backgroundColor: AppColor.blackColor,
                   gradientColors: const [
                     Color.fromARGB(255, 44, 44, 44),
@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
               12.horizontalSpace,
               Expanded(
                 child: AuthSocialButton(
-                  label: 'With Google',
+                  label: 'with_google'.tr,
                   backgroundColor: AppColor.googleRed,
                   gradientColors: const [
                     Color.fromARGB(255, 255, 82, 63),

@@ -37,21 +37,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AuthSectionTitle(
-            title: 'Sign Up',
-            subtitle: 'Enter your Credentials',
+          AuthSectionTitle(
+            title: 'sign_up_title'.tr,
+            subtitle: 'enter_credentials'.tr,
           ),
           28.verticalSpace,
           AuthInputField(
             controller: _emailController,
-            hintText: 'Email Address',
+            hintText: 'email_address'.tr,
             prefixIcon: Icons.email_rounded,
             keyboardType: TextInputType.emailAddress,
           ),
           16.verticalSpace,
           AuthInputField(
             controller: _passwordController,
-            hintText: 'Password',
+            hintText: 'password'.tr,
             prefixIcon: Icons.lock_rounded,
             obscureText: _obscurePassword,
             suffixIcon: IconButton(
@@ -70,7 +70,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           16.verticalSpace,
           AuthInputField(
             controller: _confirmPasswordController,
-            hintText: 'Confirm Password',
+            hintText: 'confirm_password'.tr,
             prefixIcon: Icons.lock_rounded,
             obscureText: _obscureConfirmPassword,
             suffixIcon: IconButton(
@@ -96,9 +96,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
             },
             richLabel: TextSpan(
               children: [
-                const TextSpan(text: 'I agree with the '),
+                TextSpan(text: 'agree_with_terms_prefix'.tr),
                 TextSpan(
-                  text: 'Terms & Conditions',
+                  text: 'terms_and_conditions'.tr,
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     decoration: TextDecoration.underline,
@@ -107,9 +107,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   recognizer: TapGestureRecognizer()
                     ..onTap = () => Get.to(() => const AgreementsScreen()),
                 ),
-                const TextSpan(text: ' | '),
+                TextSpan(text: 'terms_privacy_separator'.tr),
                 TextSpan(
-                  text: 'Privacy Policy',
+                  text: 'privacy_policy'.tr,
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     decoration: TextDecoration.underline,
@@ -123,15 +123,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           28.verticalSpace,
           AuthPrimaryButton(
-            label: 'Sign up',
+            label: 'sign_up_button'.tr,
             onPressed: () => Get.to(
               () => OtpVerificationScreen(email: _emailController.text.trim()),
             ),
           ),
           24.verticalSpace,
           AuthLinkText(
-            prefix: 'Already have an account? ',
-            linkText: 'Login',
+            prefix: 'already_have_account'.tr,
+            linkText: 'login'.tr,
             onTap: () => Get.to(() => const LoginScreen()),
             center: true,
           ),

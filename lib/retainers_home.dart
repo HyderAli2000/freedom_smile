@@ -25,9 +25,7 @@ class RetainersHome extends StatelessWidget {
             28.verticalSpace,
             const _PastOrdersSection(),
             28.verticalSpace,
-            const QuoteSection(
-              quote: 'Clean your retainer daily to avoid bacteria',
-            ),
+            QuoteSection(quote: 'retainers_quote'.tr),
           ],
         ),
       ),
@@ -44,7 +42,7 @@ class _UsageInsightsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Usage Insights',
+          'usage_insights'.tr,
           style: TextStyle(
             fontFamily: AppFonts.family,
             fontFamilyFallback: AppFonts.fallback,
@@ -70,7 +68,7 @@ class _UsageInsightsSection extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'Your Timestamp of this Week',
+                'timestamp_this_week'.tr,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: AppFonts.family,
@@ -90,16 +88,16 @@ class _UsageInsightsSection extends StatelessWidget {
                       margin: EdgeInsets.zero,
                       series: <CircularSeries<_ChartSlice, String>>[
                         DoughnutSeries<_ChartSlice, String>(
-                          dataSource: const [
-                            _ChartSlice('Worn', 19.02),
-                            _ChartSlice('Remaining', 1.98),
+                          dataSource: [
+                            _ChartSlice('chart_worn'.tr, 19.02),
+                            _ChartSlice('chart_remaining'.tr, 1.98),
                           ],
                           xValueMapper: (item, _) => item.label,
                           yValueMapper: (item, _) => item.hours,
                           innerRadius: '72%',
                           radius: '100%',
                           strokeWidth: 0,
-                          pointColorMapper: (item, _) => item.label == 'Worn'
+                          pointColorMapper: (item, _) => item.label == 'chart_worn'.tr
                               ? AppColor.calendarBg
                               : AppColor.calendarSelectedDay,
                         ),
@@ -134,7 +132,7 @@ class _UsageInsightsSection extends StatelessWidget {
               ),
               8.verticalSpace,
               Text(
-                'Good Job',
+                'good_job'.tr,
                 style: TextStyle(
                   fontFamily: AppFonts.family,
                   fontFamilyFallback: AppFonts.fallback,
@@ -145,7 +143,7 @@ class _UsageInsightsSection extends StatelessWidget {
               ),
               8.verticalSpace,
               Text(
-                '19:00:51 Hour Out of 21:00:00 Hours',
+                'hours_progress_sample'.tr,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: AppFonts.family,
@@ -174,18 +172,8 @@ class _PastOrdersSection extends StatelessWidget {
   const _PastOrdersSection();
 
   static const _orders = [
-    _PastOrderItem(
-      title: 'Lorem Ipsum',
-      description: 'Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit.',
-      price: '\$19.99',
-      status: 'Delivered',
-    ),
-    _PastOrderItem(
-      title: 'Lorem Ipsum',
-      description: 'Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit.',
-      price: '\$19.99',
-      status: 'Delivered',
-    ),
+    _PastOrderItem(price: '\$19.99'),
+    _PastOrderItem(price: '\$19.99'),
   ];
 
   @override
@@ -194,7 +182,7 @@ class _PastOrdersSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Past Orders / History',
+          'past_orders_history'.tr,
           style: TextStyle(
             fontFamily: AppFonts.family,
             fontFamilyFallback: AppFonts.fallback,
@@ -216,17 +204,9 @@ class _PastOrdersSection extends StatelessWidget {
 }
 
 class _PastOrderItem {
-  const _PastOrderItem({
-    required this.title,
-    required this.description,
-    required this.price,
-    required this.status,
-  });
+  const _PastOrderItem({required this.price});
 
-  final String title;
-  final String description;
   final String price;
-  final String status;
 }
 
 class _PastOrderCard extends StatelessWidget {
@@ -268,7 +248,7 @@ class _PastOrderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  order.title,
+                  'order_title_sample'.tr,
                   style: TextStyle(
                     fontFamily: AppFonts.family,
                     fontFamilyFallback: AppFonts.fallback,
@@ -302,7 +282,7 @@ class _PastOrderCard extends StatelessWidget {
               ),
               4.horizontalSpace,
               Text(
-                order.status,
+                'delivered'.tr,
                 style: TextStyle(
                   fontFamily: AppFonts.family,
                   fontFamilyFallback: AppFonts.fallback,

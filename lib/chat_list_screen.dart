@@ -53,7 +53,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const PageHeader(title: 'Chat', whiteBackButton: true),
+                PageHeader(title: 'chat'.tr, whiteBackButton: true),
                 20.verticalSpace,
                 TextField(
                   controller: _searchController,
@@ -65,7 +65,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     color: AppColor.textDark,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Search',
+                    hintText: 'search'.tr,
                     hintStyle: TextStyle(
                       fontFamily: AppFonts.family,
                       fontFamilyFallback: AppFonts.fallback,

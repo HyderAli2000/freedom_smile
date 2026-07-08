@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
+import 'package:get/get.dart';
 
 class ProfileUpdatedDialog extends StatelessWidget {
   const ProfileUpdatedDialog({super.key, required this.onContinue});
@@ -18,7 +19,7 @@ class ProfileUpdatedDialog extends StatelessWidget {
     return showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Profile Updated',
+      barrierLabel: 'profile_updated'.tr,
       barrierColor: Colors.black.withValues(alpha: 0.45),
       transitionDuration: const Duration(milliseconds: 220),
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -72,7 +73,7 @@ class ProfileUpdatedDialog extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Text(
-                    'Profile Updated',
+                    'profile_updated'.tr,
                     style: TextStyle(
                       fontFamily: AppFonts.family,
                       fontFamilyFallback: AppFonts.fallback,
@@ -111,7 +112,7 @@ class ProfileUpdatedDialog extends StatelessWidget {
               ),
               20.verticalSpace,
               Text(
-                'You have successfully update your profile.',
+                'profile_updated_message'.tr,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: AppFonts.family,
@@ -137,7 +138,7 @@ class ProfileUpdatedDialog extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Continue',
+                    'continue'.tr,
                     style: TextStyle(
                       fontFamily: AppFonts.family,
                       fontFamilyFallback: AppFonts.fallback,

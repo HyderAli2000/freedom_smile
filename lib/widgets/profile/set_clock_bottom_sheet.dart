@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
+import 'package:get/get.dart';
 
 enum ReminderClockMode { add, edit }
 
@@ -69,8 +70,8 @@ class _SetClockBottomSheetState extends State<SetClockBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.mode == ReminderClockMode.edit;
-    final title = isEdit ? 'Edit Reminder' : 'Set Clock';
-    final actionLabel = isEdit ? 'Save' : 'Next';
+    final title = isEdit ? 'edit_reminder'.tr : 'set_clock'.tr;
+    final actionLabel = isEdit ? 'save'.tr : 'next'.tr;
 
     return Container(
       decoration: BoxDecoration(
@@ -104,7 +105,7 @@ class _SetClockBottomSheetState extends State<SetClockBottomSheet> {
             Row(
               children: [
                 Text(
-                  'Daily Reminder',
+                  'daily_reminder'.tr,
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w500,
@@ -148,13 +149,13 @@ class _SetClockBottomSheetState extends State<SetClockBottomSheet> {
                       Column(
                         children: [
                           _AmPmBox(
-                            label: 'AM',
+                            label: 'am'.tr,
                             isSelected: _isAm,
                             onTap: () => setState(() => _isAm = true),
                           ),
                           6.verticalSpace,
                           _AmPmBox(
-                            label: 'PM',
+                            label: 'pm'.tr,
                             isSelected: !_isAm,
                             onTap: () => setState(() => _isAm = false),
                           ),

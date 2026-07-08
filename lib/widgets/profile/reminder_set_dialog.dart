@@ -27,7 +27,7 @@ class ReminderSetDialog extends StatelessWidget {
     return showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Reminder',
+      barrierLabel: 'reminder'.tr,
       barrierColor: Colors.black.withValues(alpha: 0.45),
       transitionDuration: const Duration(milliseconds: 220),
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -48,9 +48,9 @@ class ReminderSetDialog extends StatelessWidget {
   String get _title {
     switch (type) {
       case ReminderDialogType.created:
-        return 'Daily Reminder Is Set';
+        return 'daily_reminder_is_set'.tr;
       case ReminderDialogType.updated:
-        return 'Daily Reminder Update';
+        return 'daily_reminder_update'.tr;
     }
   }
 
@@ -139,7 +139,7 @@ class ReminderSetDialog extends StatelessWidget {
               ),
               20.verticalSpace,
               Text(
-                "You're all set! We'll remind you every day to keep your smile healthy and on track.",
+                'reminder_success_message'.tr,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: AppFonts.family,
@@ -165,7 +165,7 @@ class ReminderSetDialog extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Continue',
+                    'continue'.tr,
                     style: TextStyle(
                       fontFamily: AppFonts.family,
                       fontFamilyFallback: AppFonts.fallback,

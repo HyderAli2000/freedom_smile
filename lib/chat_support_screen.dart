@@ -32,17 +32,16 @@ class _ChatSupportScreenState extends State<ChatSupportScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
 
-  final List<_ChatMessage> _messages = const [
+  final List<_ChatMessage> _messages = [
     _ChatMessage(
       sender: _ChatSender.user,
-      text: "It's been feeling a bit sore on one side. Is that normal?",
-      time: '3:00 pm',
+      text: 'support_user_message_sample'.tr,
+      time: 'chat_time_3pm'.tr,
     ),
     _ChatMessage(
       sender: _ChatSender.support,
-      text:
-          'Of course! It sounds like you might be experiencing some initial discomfort, which is normal. Have you tried using orthodontic wax?',
-      time: '3:00 pm',
+      text: 'support_reply_sample'.tr,
+      time: 'chat_time_3pm'.tr,
     ),
   ];
 
@@ -59,7 +58,7 @@ class _ChatSupportScreenState extends State<ChatSupportScreen> {
 
     setState(() {
       _messages.add(
-        _ChatMessage(sender: _ChatSender.user, text: text, time: '3:00 pm'),
+        _ChatMessage(sender: _ChatSender.user, text: text, time: 'chat_time_3pm'.tr),
       );
       _messageController.clear();
     });
@@ -165,7 +164,7 @@ class _ChatSupportHeader extends StatelessWidget {
           10.horizontalSpace,
           Expanded(
             child: Text(
-              'Chat Support',
+              'chat_support'.tr,
               style: TextStyle(
                 fontFamily: AppFonts.family,
                 fontFamilyFallback: AppFonts.fallback,
@@ -178,7 +177,7 @@ class _ChatSupportHeader extends StatelessWidget {
           GestureDetector(
             onTap: onFaqTap,
             child: Text(
-              "FAQ's",
+              'faqs_short'.tr,
               style: TextStyle(
                 fontFamily: AppFonts.family,
                 fontFamilyFallback: AppFonts.fallback,
@@ -359,7 +358,7 @@ class _ChatInputBar extends StatelessWidget {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
               decoration: InputDecoration(
-                hintText: 'Write your message..',
+                hintText: 'write_your_message'.tr,
                 hintStyle: TextStyle(
                   fontFamily: AppFonts.family,
                   fontFamilyFallback: AppFonts.fallback,

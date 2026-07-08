@@ -82,8 +82,8 @@ class _AddReminderHomeState extends State<AddReminderHome> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const PageHeader(
-                  title: 'New Reminder',
+                PageHeader(
+                  title: 'new_reminder'.tr,
                   whiteBackButton: true,
                 ),
                 Expanded(
@@ -93,7 +93,7 @@ class _AddReminderHomeState extends State<AddReminderHome> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'What time should we remind you?',
+                          'what_time_remind_you'.tr,
                           style: TextStyle(
                             fontFamily: AppFonts.family,
                             fontFamilyFallback: AppFonts.fallback,
@@ -105,7 +105,7 @@ class _AddReminderHomeState extends State<AddReminderHome> {
                         ),
                         8.verticalSpace,
                         Text(
-                          "Don't worry, you can change it in App",
+                          'reminder_change_later_hint'.tr,
                           style: TextStyle(
                             fontFamily: AppFonts.family,
                             fontFamilyFallback: AppFonts.fallback,
@@ -118,8 +118,8 @@ class _AddReminderHomeState extends State<AddReminderHome> {
                         Row(
                           children: [
                             ProfileReminderCard(
-                              label: 'Night Time',
-                              subtitle: 'Recommend',
+                              label: 'night_time'.tr,
+                              subtitle: 'recommend'.tr,
                               icon: AssetIcons.night,
                               isSelected:
                                   _selectedReminder == ReminderType.nightTime,
@@ -128,7 +128,7 @@ class _AddReminderHomeState extends State<AddReminderHome> {
                             ),
                             10.horizontalSpace,
                             ProfileReminderCard(
-                              label: 'Morning',
+                              label: 'morning'.tr,
                               icon: AssetIcons.morning,
                               isSelected:
                                   _selectedReminder == ReminderType.morning,
@@ -137,7 +137,7 @@ class _AddReminderHomeState extends State<AddReminderHome> {
                             ),
                             10.horizontalSpace,
                             ProfileReminderCard(
-                              label: 'Custom Time',
+                              label: 'custom_time'.tr,
                               icon: AssetIcons.custom,
                               isSelected:
                                   _selectedReminder == ReminderType.customTime,
@@ -153,7 +153,7 @@ class _AddReminderHomeState extends State<AddReminderHome> {
                 Padding(
                   padding: EdgeInsets.only(bottom: 16.h),
                   child: ProfilePrimaryButton(
-                    label: 'Next',
+                    label: 'next'.tr,
                     onPressed: () => _showSetClockSheet(_selectedReminder),
                   ),
                 ),

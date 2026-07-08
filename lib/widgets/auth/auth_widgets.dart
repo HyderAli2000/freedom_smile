@@ -256,7 +256,7 @@ class AuthOrDivider extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Text(
-            'Or',
+            'or'.tr,
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
@@ -385,7 +385,7 @@ class AuthAgreementText extends StatelessWidget {
     return Column(
       children: [
         Text(
-          'By signing up you agree to our ',
+          'by_signing_up_agree'.tr,
           style: TextStyle(
             fontSize: 12.sp,
             fontWeight: FontWeight.w400,
@@ -397,7 +397,7 @@ class AuthAgreementText extends StatelessWidget {
           text: TextSpan(
             children: [
               TextSpan(
-                text: 'Terms & Conditions',
+                text: 'terms_and_conditions'.tr,
                 style: TextStyle(
                   decoration: TextDecoration.underline,
                   decorationColor: AppColor.whiteColor.withValues(alpha: 0.9),
@@ -405,9 +405,9 @@ class AuthAgreementText extends StatelessWidget {
                 recognizer: TapGestureRecognizer()
                   ..onTap = () => Get.to(() => const AgreementsScreen()),
               ),
-              const TextSpan(text: ' | '),
+              TextSpan(text: 'terms_privacy_separator'.tr),
               TextSpan(
-                text: 'Privacy Policy',
+                text: 'privacy_policy'.tr,
                 style: TextStyle(
                   decoration: TextDecoration.underline,
                   decorationColor: AppColor.whiteColor.withValues(alpha: 0.9),

@@ -30,10 +30,10 @@ class SetReminderHome extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const PageHeader(title: 'Set Reminder', whiteBackButton: true),
+                PageHeader(title: 'set_reminder'.tr, whiteBackButton: true),
                 20.verticalSpace,
                 Text(
-                  'Reminder',
+                  'reminder'.tr,
                   style: TextStyle(
                     fontFamily: AppFonts.family,
                     fontFamilyFallback: AppFonts.fallback,
@@ -65,7 +65,7 @@ class SetReminderHome extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(bottom: 16.h),
                   child: ProfilePrimaryButton(
-                    label: 'Edit',
+                    label: 'edit'.tr,
                     onPressed: () {
                       SetClockBottomSheet.show(
                         context,
@@ -129,7 +129,7 @@ class _ReminderSummaryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Your Reminder',
+                  'your_reminder'.tr,
                   style: TextStyle(
                     fontFamily: AppFonts.family,
                     fontFamilyFallback: AppFonts.fallback,
@@ -140,7 +140,7 @@ class _ReminderSummaryCard extends StatelessWidget {
                 ),
                 4.verticalSpace,
                 Text(
-                  '10:00 PM (Night)',
+                  'reminder_time_night_sample'.tr,
                   style: TextStyle(
                     fontFamily: AppFonts.family,
                     fontFamilyFallback: AppFonts.fallback,

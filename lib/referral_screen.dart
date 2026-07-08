@@ -5,6 +5,7 @@ import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
+import 'package:get/get.dart';
 
 class ReferralScreen extends StatelessWidget {
   const ReferralScreen({super.key});
@@ -58,7 +59,7 @@ class _ReferHeroSection extends StatelessWidget {
         ),
         20.verticalSpace,
         Text(
-          'Refer & Earn Rewards',
+          'refer_and_earn'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppFonts.family,
@@ -70,7 +71,7 @@ class _ReferHeroSection extends StatelessWidget {
         ),
         12.verticalSpace,
         Text(
-          'Invite friends and earn exciting rewards as\nthey join and complete their first order.',
+          'refer_hero_description'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppFonts.family,
@@ -89,10 +90,10 @@ class _ReferHeroSection extends StatelessWidget {
 class _RewardsProgressCard extends StatelessWidget {
   const _RewardsProgressCard();
 
-  static const _milestones = [
-    '1 Referral -> \$100 Gift Card',
-    '2 Referrals -> Miami Heat tickets (regular season)',
-    '3 Referrals -> Free Retainer',
+  static const _milestoneKeys = [
+    'milestone_1',
+    'milestone_2',
+    'milestone_3',
   ];
 
   @override
@@ -114,7 +115,7 @@ class _RewardsProgressCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rewards Progress',
+                      'rewards_progress'.tr,
                       style: TextStyle(
                         fontFamily: AppFonts.family,
                         fontFamilyFallback: AppFonts.fallback,
@@ -124,11 +125,11 @@ class _RewardsProgressCard extends StatelessWidget {
                       ),
                     ),
                     14.verticalSpace,
-                    ..._milestones.map(
-                      (line) => Padding(
+                    ..._milestoneKeys.map(
+                      (key) => Padding(
                         padding: EdgeInsets.only(bottom: 6.h),
                         child: Text(
-                          line,
+                          key.tr,
                           style: TextStyle(
                             fontFamily: AppFonts.family,
                             fontFamilyFallback: AppFonts.fallback,
@@ -195,7 +196,7 @@ class _RewardsProgressCard extends StatelessWidget {
           ),
           8.verticalSpace,
           Text(
-            '2/3 Completed',
+            'completed_fraction'.tr,
             style: TextStyle(
               fontFamily: AppFonts.family,
               fontFamilyFallback: AppFonts.fallback,
@@ -219,7 +220,7 @@ class _InviteFriendsSection extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: code));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Referral code copied'),
+        content: Text('referral_code_copied'.tr),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -232,7 +233,7 @@ class _InviteFriendsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Invite Friends',
+          'invite_friends'.tr,
           style: TextStyle(
             fontFamily: AppFonts.family,
             fontFamilyFallback: AppFonts.fallback,
@@ -243,7 +244,7 @@ class _InviteFriendsSection extends StatelessWidget {
         ),
         6.verticalSpace,
         Text(
-          'Share this code with your friends',
+          'share_code_with_friends'.tr,
           style: TextStyle(
             fontFamily: AppFonts.family,
             fontFamilyFallback: AppFonts.fallback,
@@ -294,17 +295,17 @@ class _ReferralStatusTracker extends StatelessWidget {
   const _ReferralStatusTracker();
 
   static const _referrals = [
-    _ReferralPerson(name: 'Kelvin', id: '#0012', status: 'Registered'),
+    _ReferralPerson(name: 'Kelvin', id: '#0012', statusKey: 'status_registered'),
     _ReferralPerson(
       name: 'John',
       id: '#0011',
-      status: 'Approved',
+      statusKey: 'status_approved',
       approved: true,
     ),
     _ReferralPerson(
       name: 'Mick',
       id: '#0013',
-      status: 'Approved',
+      statusKey: 'status_approved',
       approved: true,
     ),
   ];
@@ -315,7 +316,7 @@ class _ReferralStatusTracker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Referral Status Tracker',
+          'referral_status_tracker'.tr,
           style: TextStyle(
             fontFamily: AppFonts.family,
             fontFamilyFallback: AppFonts.fallback,
@@ -342,13 +343,13 @@ class _ReferralPerson {
   const _ReferralPerson({
     required this.name,
     required this.id,
-    required this.status,
+    required this.statusKey,
     this.approved = false,
   });
 
   final String name;
   final String id;
-  final String status;
+  final String statusKey;
   final bool approved;
 }
 
@@ -403,7 +404,7 @@ class _ReferralPersonCard extends StatelessWidget {
         ),
         4.verticalSpace,
         Text(
-          person.status,
+          person.statusKey.tr,
           style: TextStyle(
             fontFamily: AppFonts.family,
             fontFamilyFallback: AppFonts.fallback,
@@ -423,20 +424,20 @@ class _EarnedRewardSection extends StatelessWidget {
   static const _rewards = [
     _RewardItem(
       image: AssetImages.gift,
-      title: '\$100 Amazon Gift Card',
-      status: 'Earned',
+      titleKey: 'reward_amazon_gift_card',
+      statusKey: 'status_earned',
       earned: true,
     ),
     _RewardItem(
       image: AssetImages.pc3,
-      title: 'Miami Heat Tickets',
-      status: 'Earned',
+      titleKey: 'reward_miami_heat_tickets',
+      statusKey: 'status_earned',
       earned: true,
     ),
     _RewardItem(
       image: AssetImages.pc2,
-      title: 'Free Retainer',
-      status: 'Waiting',
+      titleKey: 'reward_free_retainer',
+      statusKey: 'status_waiting',
       earned: false,
     ),
   ];
@@ -447,7 +448,7 @@ class _EarnedRewardSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Earned Reward',
+          'earned_reward'.tr,
           style: TextStyle(
             fontFamily: AppFonts.family,
             fontFamilyFallback: AppFonts.fallback,
@@ -458,7 +459,7 @@ class _EarnedRewardSection extends StatelessWidget {
         ),
         6.verticalSpace,
         Text(
-          'Next Reward: Free Retainer',
+          'next_reward_free_retainer'.tr,
           style: TextStyle(
             fontFamily: AppFonts.family,
             fontFamilyFallback: AppFonts.fallback,
@@ -482,14 +483,14 @@ class _EarnedRewardSection extends StatelessWidget {
 class _RewardItem {
   const _RewardItem({
     required this.image,
-    required this.title,
-    required this.status,
+    required this.titleKey,
+    required this.statusKey,
     required this.earned,
   });
 
   final String image;
-  final String title;
-  final String status;
+  final String titleKey;
+  final String statusKey;
   final bool earned;
 }
 
@@ -526,7 +527,7 @@ class _RewardCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  reward.title,
+                  reward.titleKey.tr,
                   style: TextStyle(
                     fontFamily: AppFonts.family,
                     fontFamilyFallback: AppFonts.fallback,
@@ -547,7 +548,7 @@ class _RewardCard extends StatelessWidget {
                       6.horizontalSpace,
                     ],
                     Text(
-                      reward.status,
+                      reward.statusKey.tr,
                       style: TextStyle(
                         fontFamily: AppFonts.family,
                         fontFamilyFallback: AppFonts.fallback,

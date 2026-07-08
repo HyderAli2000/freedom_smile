@@ -66,7 +66,7 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
                 // color: AppColor.whiteColor.withValues(alpha: 0.6),
                 padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
                 child: ProfilePrimaryButton(
-                  label: 'Edit Personal Information',
+                  label: 'edit_personal_information'.tr,
                   onPressed: _openEditProfile,
                 ),
               ),
@@ -216,7 +216,7 @@ class _ProfileViewHeader extends StatelessWidget {
         alignment: Alignment.topCenter,
         children: [
           Text(
-            'Profile',
+            'profile'.tr,
             style: TextStyle(
               fontFamily: AppFonts.family,
               fontFamilyFallback: AppFonts.fallback,
@@ -275,14 +275,14 @@ class _ProfileDetailsCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _ProfileDetailRow(label: 'Full Name', value: profile.fullName),
+          _ProfileDetailRow(label: 'full_name'.tr, value: profile.fullName),
           _ProfileAddressRow(address: profile.address),
-          _ProfileDetailRow(label: 'City', value: profile.city),
-          _ProfileDetailRow(label: 'State', value: profile.state),
-          _ProfileDetailRow(label: 'Gender', value: profile.gender),
-          _ProfileVerifiedRow(label: 'Email', value: profile.email),
+          _ProfileDetailRow(label: 'city'.tr, value: profile.city),
+          _ProfileDetailRow(label: 'state'.tr, value: profile.state),
+          _ProfileDetailRow(label: 'gender'.tr, value: profile.gender),
+          _ProfileVerifiedRow(label: 'email'.tr, value: profile.email),
           _ProfileVerifiedRow(
-            label: 'Phone Number',
+            label: 'phone_number'.tr,
             value: profile.formattedPhone,
             showDivider: false,
           ),
@@ -356,7 +356,7 @@ class _ProfileAddressRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Address',
+                'address'.tr,
                 style: TextStyle(
                   fontFamily: AppFonts.family,
                   fontFamilyFallback: AppFonts.fallback,

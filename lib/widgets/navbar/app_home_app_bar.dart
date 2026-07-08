@@ -3,17 +3,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
+import 'package:get/get.dart';
 
 class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AppHomeAppBar({
     super.key,
     this.userName = 'Anderson',
-    this.subtitle = 'Keep a Healthy Smile',
     this.onNotificationTap,
   });
 
   final String userName;
-  final String subtitle;
   final VoidCallback? onNotificationTap;
 
   @override
@@ -53,7 +52,7 @@ class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Hi, $userName',
+                    'hi_user'.trParams({'name': userName}),
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
@@ -62,7 +61,7 @@ class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   2.verticalSpace,
                   Text(
-                    subtitle,
+                    'keep_healthy_smile'.tr,
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w400,

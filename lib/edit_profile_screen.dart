@@ -5,6 +5,7 @@ import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
 import 'package:freedom_smile/widgets/profile/profile_updated_dialog.dart';
 import 'package:freedom_smile/widgets/profile/profile_widgets.dart';
+import 'package:get/get.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key, required this.profile});
@@ -27,8 +28,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late String _gender;
   late String _countryCode;
 
-  static const _genders = ['Male', 'Female', 'Other'];
+  static const _genderValues = ['Male', 'Female', 'Other'];
   static const _countryCodes = ['+1', '+44', '+91', '+61'];
+
+  List<String> get _genderItems => [
+        'gender_male'.tr,
+        'gender_female'.tr,
+        'gender_other'.tr,
+      ];
+
+  String get _genderDisplayValue {
+    final index = _genderValues.indexOf(_gender);
+    return index >= 0 ? _genderItems[index] : _gender;
+  }
 
   @override
   void initState() {
@@ -103,8 +115,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: const PageHeader(
-                    title: 'Edit Profile',
+                  child: PageHeader(
+                    title: 'edit_profile'.tr,
                     whiteBackButton: true,
                   ),
                 ),
@@ -124,14 +136,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Expanded(
                               child: ProfileFormField(
                                 controller: _firstNameController,
-                                hintText: 'First Name',
+                                hintText: 'first_name'.tr,
                               ),
                             ),
                             12.horizontalSpace,
                             Expanded(
                               child: ProfileFormField(
                                 controller: _lastNameController,
-                                hintText: 'Last Name',
+                                hintText: 'last_name'.tr,
                               ),
                             ),
                           ],
@@ -139,7 +151,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         14.verticalSpace,
                         ProfileFormField(
                           controller: _addressController,
-                          hintText: 'Address',
+                          hintText: 'address'.tr,
                         ),
                         14.verticalSpace,
                         Row(
@@ -147,33 +159,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Expanded(
                               child: ProfileFormField(
                                 controller: _cityController,
-                                hintText: 'City',
+                                hintText: 'city'.tr,
                               ),
                             ),
                             12.horizontalSpace,
                             Expanded(
                               child: ProfileFormField(
                                 controller: _stateController,
-                                hintText: 'State',
+                                hintText: 'state'.tr,
                               ),
                             ),
                           ],
                         ),
                         14.verticalSpace,
                         ProfileDropdownField(
-                          hintText: 'Gender',
-                          value: _gender,
-                          items: _genders,
+                          hintText: 'gender'.tr,
+                          value: _genderDisplayValue,
+                          items: _genderItems,
                           onChanged: (value) {
                             if (value != null) {
-                              setState(() => _gender = value);
+                              final index = _genderItems.indexOf(value);
+                              if (index >= 0) {
+                                setState(() => _gender = _genderValues[index]);
+                              }
                             }
                           },
                         ),
                         14.verticalSpace,
                         ProfileFormField(
                           controller: _emailController,
-                          hintText: 'Email',
+                          hintText: 'email'.tr,
                           readOnly: true,
                           keyboardType: TextInputType.emailAddress,
                           suffix: const ProfileVerifiedBadge(),
@@ -198,7 +213,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Expanded(
                               child: ProfileFormField(
                                 controller: _phoneController,
-                                hintText: 'Phone Number',
+                                hintText: 'phone_number'.tr,
                                 readOnly: true,
                                 keyboardType: TextInputType.phone,
                                 suffix: const ProfileVerifiedBadge(),
@@ -213,7 +228,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 16.h),
                   child: ProfilePrimaryButton(
-                    label: 'Next',
+                    label: 'next'.tr,
                     onPressed: _saveProfile,
                   ),
                 ),

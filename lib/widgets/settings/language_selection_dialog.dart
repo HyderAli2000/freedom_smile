@@ -4,38 +4,46 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
+import 'package:get/get.dart';
 
 class LanguageOption {
-  const LanguageOption({required this.name, required this.flagEmoji});
+  const LanguageOption({
+    required this.code,
+    required this.labelKey,
+    required this.flagEmoji,
+  });
 
-  final String name;
+  final String code;
+  final String labelKey;
   final String flagEmoji;
+
+  String get displayName => labelKey.tr;
 }
 
 class LanguageSelectionDialog extends StatefulWidget {
   const LanguageSelectionDialog({
     super.key,
-    required this.initialLanguage,
+    required this.initialCode,
     required this.languages,
   });
 
-  final String initialLanguage;
+  final String initialCode;
   final List<LanguageOption> languages;
 
   static Future<String?> show(
     BuildContext context, {
-    required String initialLanguage,
+    required String initialCode,
     required List<LanguageOption> languages,
   }) {
     return showGeneralDialog<String?>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Language',
+      barrierLabel: 'language'.tr,
       barrierColor: Colors.black.withValues(alpha: 0.45),
       transitionDuration: const Duration(milliseconds: 220),
       pageBuilder: (context, animation, secondaryAnimation) {
         return LanguageSelectionDialog(
-          initialLanguage: initialLanguage,
+          initialCode: initialCode,
           languages: languages,
         );
       },
@@ -57,16 +65,15 @@ class LanguageSelectionDialog extends StatefulWidget {
 }
 
 class _LanguageSelectionDialogState extends State<LanguageSelectionDialog> {
-  late String _selectedLanguage;
+  late String _selectedCode;
 
   @override
   void initState() {
     super.initState();
-    _selectedLanguage = widget.languages.any(
-      (language) => language.name == widget.initialLanguage,
-    )
-        ? widget.initialLanguage
-        : widget.languages.first.name;
+    _selectedCode =
+        widget.languages.any((language) => language.code == widget.initialCode)
+        ? widget.initialCode
+        : widget.languages.first.code;
   }
 
   @override
@@ -105,7 +112,7 @@ class _LanguageSelectionDialogState extends State<LanguageSelectionDialog> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Language',
+                      'language'.tr,
                       style: TextStyle(
                         fontFamily: AppFonts.family,
                         fontFamilyFallback: AppFonts.fallback,
@@ -132,25 +139,25 @@ class _LanguageSelectionDialogState extends State<LanguageSelectionDialog> {
               ),
               16.verticalSpace,
               Text(
-                'Select your preferred language',
+                'select_preferred_language'.tr,
                 style: TextStyle(
                   fontFamily: AppFonts.family,
                   fontFamilyFallback: AppFonts.fallback,
                   fontSize: 13.sp,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w500,
                   color: AppColor.textBody,
                 ),
               ),
               16.verticalSpace,
               ...widget.languages.map((language) {
-                final isSelected = _selectedLanguage == language.name;
+                final isSelected = _selectedCode == language.code;
                 return Padding(
                   padding: EdgeInsets.only(bottom: 12.h),
                   child: _LanguageTile(
                     language: language,
                     isSelected: isSelected,
                     onTap: () {
-                      setState(() => _selectedLanguage = language.name);
+                      setState(() => _selectedCode = language.code);
                     },
                   ),
                 );
@@ -159,7 +166,7 @@ class _LanguageSelectionDialogState extends State<LanguageSelectionDialog> {
               SizedBox(
                 height: 50.h,
                 child: ElevatedButton.icon(
-                  onPressed: () => Navigator.of(context).pop(_selectedLanguage),
+                  onPressed: () => Navigator.of(context).pop(_selectedCode),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColor.primaryBlue,
                     foregroundColor: AppColor.whiteColor,
@@ -170,7 +177,7 @@ class _LanguageSelectionDialogState extends State<LanguageSelectionDialog> {
                   ),
                   icon: Icon(Icons.save_outlined, size: 20.sp),
                   label: Text(
-                    'Save Changes',
+                    'save_changes'.tr,
                     style: TextStyle(
                       fontFamily: AppFonts.family,
                       fontFamilyFallback: AppFonts.fallback,
@@ -219,14 +226,11 @@ class _LanguageTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text(
-                language.flagEmoji,
-                style: TextStyle(fontSize: 22.sp),
-              ),
+              Text(language.flagEmoji, style: TextStyle(fontSize: 22.sp)),
               12.horizontalSpace,
               Expanded(
                 child: Text(
-                  language.name,
+                  language.displayName,
                   style: TextStyle(
                     fontFamily: AppFonts.family,
                     fontFamilyFallback: AppFonts.fallback,

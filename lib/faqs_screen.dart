@@ -5,6 +5,7 @@ import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
+import 'package:get/get.dart';
 
 class FaqsScreen extends StatefulWidget {
   const FaqsScreen({super.key});
@@ -33,8 +34,8 @@ class _FaqsScreenState extends State<FaqsScreen> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: const PageHeader(
-                  title: "FAQ's",
+                child: PageHeader(
+                  title: 'faqs_title'.tr,
                   whiteBackButton: true,
                 ),
               ),
@@ -43,7 +44,7 @@ class _FaqsScreenState extends State<FaqsScreen> {
                   padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 24.h),
                   children: [
                     Text(
-                      'Frequently Asked Questions:',
+                      'frequently_asked_questions_heading'.tr,
                       style: TextStyle(
                         fontFamily: AppFonts.family,
                         fontFamilyFallback: AppFonts.fallback,

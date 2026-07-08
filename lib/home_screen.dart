@@ -25,10 +25,7 @@ class HomeScreen extends StatelessWidget {
             28.verticalSpace,
             const _WornProgressCircle(),
             28.verticalSpace,
-            const QuoteSection(
-              quote:
-                  'Your smile reflects your care protect it daily with simple habits that make a lasting difference.',
-            ),
+            QuoteSection(),
             28.verticalSpace,
             const _EducationalTipsSection(),
           ],
@@ -64,7 +61,7 @@ class RetainerStatusCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '05 Months',
+            'retainer_months_sample'.tr,
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
@@ -73,7 +70,7 @@ class RetainerStatusCard extends StatelessWidget {
           ),
           8.verticalSpace,
           Text(
-            'Your retainer may need\nreplacement soon',
+            'retainer_replacement_soon'.tr,
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w500,
@@ -85,7 +82,7 @@ class RetainerStatusCard extends StatelessWidget {
           GestureDetector(
             onTap: () => Get.to(() => const RetainerCheckinScreen()),
             child: Text(
-              'Order Now',
+              'order_now'.tr,
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
@@ -134,7 +131,7 @@ class _WornProgressCircle extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Mark as Worn',
+                    'mark_as_worn'.tr,
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.w700,
@@ -161,9 +158,9 @@ class _WornProgressCircle extends StatelessWidget {
 }
 
 class QuoteSection extends StatelessWidget {
-  const QuoteSection({super.key, required this.quote});
+  const QuoteSection({super.key, this.quote});
 
-  final String quote;
+  final String? quote;
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +183,7 @@ class QuoteSection extends StatelessWidget {
         12.horizontalSpace,
         Expanded(
           child: Text(
-            quote,
+            quote ?? 'home_quote'.tr,
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,
@@ -213,7 +210,7 @@ class _EducationalTipsSection extends StatelessWidget {
         Row(
           children: [
             Text(
-              'Educational Tips',
+              'educational_tips'.tr,
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
@@ -224,7 +221,7 @@ class _EducationalTipsSection extends StatelessWidget {
             GestureDetector(
               onTap: () => Get.to(() => const EducationalTipsScreen()),
               child: Text(
-                'See All',
+                'see_all'.tr,
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,

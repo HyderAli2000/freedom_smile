@@ -5,6 +5,7 @@ import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
+import 'package:get/get.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -25,8 +26,8 @@ class NotificationsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const PageHeader(
-                  title: 'Notifications',
+                PageHeader(
+                  title: 'notifications'.tr,
                   whiteBackButton: true,
                 ),
                 20.verticalSpace,
@@ -133,14 +134,14 @@ class _NotificationCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _NotificationOutlinedButton(
-                    label: 'Remind Later',
+                    label: 'remind_later'.tr,
                     onTap: () {},
                   ),
                 ),
                 12.horizontalSpace,
                 Expanded(
                   child: _NotificationFilledButton(
-                    label: 'Already Wear',
+                    label: 'already_wear'.tr,
                     onTap: () {},
                   ),
                 ),

@@ -4,14 +4,12 @@ import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
+import 'package:get/get.dart';
 
 class AboutAppScreen extends StatelessWidget {
   const AboutAppScreen({super.key});
 
   static const _appVersion = '1.0.0';
-
-  static const _bodyText =
-      'Arcu risus, lacus, et felis, vel vitae pulvinar. Nec viverra sit mattis morbi sagittis, eget dictum urna. Et viverra sed gravida id. Proin ut facilisis viverra nisi pulvinar at sed. Neque turpis tempor venenatis neque pellentesque lectus et morbi. Lacinia nunc ac, nullam malesuada dictum turpis accumsan, venenatis.';
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +28,8 @@ class AboutAppScreen extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: const PageHeader(
-                  title: 'About App',
+                child: PageHeader(
+                  title: 'about_app'.tr,
                   whiteBackButton: true,
                 ),
               ),
@@ -53,14 +51,14 @@ class AboutAppScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const _AboutSection(
-                          heading: 'Lorem ipsum dolor sit amet consectetur.',
-                          body: _bodyText,
+                        _AboutSection(
+                          heading: 'about_section_heading'.tr,
+                          body: 'about_section_body'.tr,
                         ),
                         28.verticalSpace,
-                        const _AboutSection(
-                          heading: 'Lorem ipsum dolor sit amet consectetur.',
-                          body: _bodyText,
+                        _AboutSection(
+                          heading: 'about_section_heading'.tr,
+                          body: 'about_section_body'.tr,
                         ),
                       ],
                     ),
@@ -127,7 +125,7 @@ class _AboutFooter extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Freedom Smile',
+            'app_name'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: AppFonts.family,
@@ -139,7 +137,7 @@ class _AboutFooter extends StatelessWidget {
           ),
           6.verticalSpace,
           Text(
-            'Version $version',
+            'version_label'.trParams({'version': version}),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: AppFonts.family,

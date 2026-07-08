@@ -19,18 +19,18 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   static const _email = 'emailly2023@gmail.com';
   static const _correctPassword = '123';
 
-  static const _reasons = [
-    'Privacy Concerns',
-    'Switching to another service',
-    'Too many notifications',
-    "I'm facing technical issues",
-    'Other',
+  static const _reasonKeys = [
+    'delete_reason_privacy',
+    'delete_reason_switching',
+    'delete_reason_notifications',
+    'delete_reason_technical',
+    'other',
   ];
 
   final _otherReasonController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  String _selectedReason = 'Other';
+  String _selectedReason = 'other';
   bool _obscurePassword = true;
   String? _passwordError;
 
@@ -45,7 +45,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     final password = _passwordController.text.trim();
     if (password != _correctPassword) {
       setState(() {
-        _passwordError = 'Incorrect password. Please try again';
+        _passwordError = 'incorrect_password'.tr;
       });
       return;
     }
@@ -55,8 +55,8 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     await AccountSuccessDialog.show(
       context,
       icon: Icons.logout_rounded,
-      message: 'Your account has been deleted successfully!',
-      buttonLabel: 'Login Account',
+      message: 'account_deleted_success'.tr,
+      buttonLabel: 'login_account'.tr,
       onPressed: () {
         Navigator.of(context).pop();
         Get.offAll(() => const LoginScreen());
@@ -67,20 +67,19 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return CheckoutScaffold(
-      title: 'Delete Account',
+      title: 'delete_account'.tr,
       body: SingleChildScrollView(
         padding: EdgeInsets.only(top: 20.h, bottom: 16.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AccountSectionHeading(
-              title: 'Delete your Account',
-              subtitle:
-                  'Deleting your account is permanent. All your data, messages, history, and preferences will be erased and cannot be restored.',
+            AccountSectionHeading(
+              title: 'delete_your_account'.tr,
+              subtitle: 'delete_account_warning'.tr,
             ),
             28.verticalSpace,
             Text(
-              'Reason Selection (Optional, for analytics)',
+              'reason_selection_optional'.tr,
               style: TextStyle(
                 fontFamily: AppFonts.family,
                 fontFamilyFallback: AppFonts.fallback,
@@ -90,25 +89,24 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               ),
             ),
             12.verticalSpace,
-            ..._reasons.map(
-              (reason) => _ReasonRadioTile(
-                label: reason,
-                isSelected: _selectedReason == reason,
-                onTap: () => setState(() => _selectedReason = reason),
+            ..._reasonKeys.map(
+              (reasonKey) => _ReasonRadioTile(
+                label: reasonKey.tr,
+                isSelected: _selectedReason == reasonKey,
+                onTap: () => setState(() => _selectedReason = reasonKey),
               ),
             ),
-            if (_selectedReason == 'Other') ...[
+            if (_selectedReason == 'other') ...[
               12.verticalSpace,
               AccountMultilineField(
                 controller: _otherReasonController,
-                hintText: 'Type your reason here..',
+                hintText: 'type_your_reason'.tr,
               ),
             ],
             28.verticalSpace,
-            const AccountSectionHeading(
-              title: 'Security Confirmation',
-              subtitle:
-                  'For security, please enter your password to delete your account.',
+            AccountSectionHeading(
+              title: 'security_confirmation'.tr,
+              subtitle: 'enter_password_to_delete'.tr,
             ),
             16.verticalSpace,
             Text(
@@ -123,9 +121,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             ),
             16.verticalSpace,
             AccountPasswordField(
-              label: 'Password',
+              label: 'password'.tr,
               controller: _passwordController,
-              hintText: 'Enter your Password',
+              hintText: 'enter_your_password'.tr,
               obscureText: _obscurePassword,
               errorText: _passwordError,
               onToggleVisibility: () {
@@ -138,7 +136,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       bottom: Padding(
         padding: EdgeInsets.fromLTRB(0, 0, 0, 16.h),
         child: AccountPrimaryButton(
-          label: 'Confirm',
+          label: 'confirm'.tr,
           onPressed: _confirmDelete,
         ),
       ),

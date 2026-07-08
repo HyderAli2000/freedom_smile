@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
+import 'package:get/get.dart';
 
 class AccountSectionHeading extends StatelessWidget {
   const AccountSectionHeading({
@@ -184,10 +185,10 @@ class AccountPasswordField extends StatelessWidget {
 class PasswordRequirementsBox extends StatelessWidget {
   const PasswordRequirementsBox({super.key});
 
-  static const _requirements = [
-    'At least 8 characters',
-    'Mix of letters and numbers',
-    'At least one special character',
+  static const _requirementKeys = [
+    'password_req_8_chars',
+    'password_req_letters_numbers',
+    'password_req_special_char',
   ];
 
   @override
@@ -203,7 +204,7 @@ class PasswordRequirementsBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Password must contain:',
+            'password_must_contain'.tr,
             style: TextStyle(
               fontFamily: AppFonts.family,
               fontFamilyFallback: AppFonts.fallback,
@@ -213,8 +214,8 @@ class PasswordRequirementsBox extends StatelessWidget {
             ),
           ),
           10.verticalSpace,
-          ..._requirements.map(
-            (requirement) => Padding(
+          ..._requirementKeys.map(
+            (key) => Padding(
               padding: EdgeInsets.only(bottom: 6.h),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +229,7 @@ class PasswordRequirementsBox extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      requirement,
+                      key.tr,
                       style: TextStyle(
                         fontFamily: AppFonts.family,
                         fontFamilyFallback: AppFonts.fallback,

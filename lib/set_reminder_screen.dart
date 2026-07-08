@@ -5,6 +5,7 @@ import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/widgets/profile/profile_onboarding_widgets.dart';
 import 'package:freedom_smile/widgets/profile/reminder_set_dialog.dart';
 import 'package:freedom_smile/widgets/profile/set_clock_bottom_sheet.dart';
+import 'package:get/get.dart';
 
 enum ReminderType { nightTime, morning, customTime }
 
@@ -60,16 +61,16 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
   @override
   Widget build(BuildContext context) {
     return ProfileOnboardingScaffold(
-      title: 'Set Reminder',
-      stepText: 'Step 4/5',
+      title: 'new_reminder'.tr,
+      stepText: 'step_4_of_5'.tr,
       onNext: () => _showSetClockSheet(_selectedReminder),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ProfileQuestionTitle(text: 'What time should we remind you?'),
+          ProfileQuestionTitle(text: 'what_time_remind_you'.tr),
           8.verticalSpace,
           Text(
-            "Don't worry, you can change it in App",
+            'reminder_change_later_hint'.tr,
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w400,
@@ -80,22 +81,22 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
           Row(
             children: [
               ProfileReminderCard(
-                label: 'Night Time',
-                subtitle: 'Recommend',
+                label: 'night_time'.tr,
+                subtitle: 'recommend'.tr,
                 icon: AssetIcons.night,
                 isSelected: _selectedReminder == ReminderType.nightTime,
                 onTap: () => _onReminderSelected(ReminderType.nightTime),
               ),
               10.horizontalSpace,
               ProfileReminderCard(
-                label: 'Morning',
+                label: 'morning'.tr,
                 icon: AssetIcons.morning,
                 isSelected: _selectedReminder == ReminderType.morning,
                 onTap: () => _onReminderSelected(ReminderType.morning),
               ),
               10.horizontalSpace,
               ProfileReminderCard(
-                label: 'Custom Time',
+                label: 'custom_time'.tr,
                 icon: AssetIcons.custom,
                 isSelected: _selectedReminder == ReminderType.customTime,
                 onTap: () => _onReminderSelected(ReminderType.customTime),

@@ -7,6 +7,7 @@ import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
 import 'package:freedom_smile/widgets/profile/reminder_set_dialog.dart';
 import 'package:freedom_smile/widgets/profile/set_clock_bottom_sheet.dart';
+import 'package:get/get.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -51,7 +52,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const PageHeader(title: 'Appointments', whiteBackButton: true),
+                PageHeader(title: 'appointments'.tr, whiteBackButton: true),
                 20.verticalSpace,
                 _AppointmentTabBar(
                   showCompleted: _showCompleted,
@@ -98,7 +99,7 @@ class _AppointmentTabBar extends StatelessWidget {
       children: [
         Expanded(
           child: _TabChip(
-            label: 'Pending',
+            label: 'pending'.tr,
             isSelected: !showCompleted,
             onTap: () => onChanged(false),
           ),
@@ -106,7 +107,7 @@ class _AppointmentTabBar extends StatelessWidget {
         10.horizontalSpace,
         Expanded(
           child: _TabChip(
-            label: 'Completed',
+            label: 'completed'.tr,
             isSelected: showCompleted,
             onTap: () => onChanged(true),
           ),

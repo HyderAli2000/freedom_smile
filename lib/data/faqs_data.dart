@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 class FaqItem {
   const FaqItem({required this.question, required this.answer});
 
@@ -8,31 +10,22 @@ class FaqItem {
 class FaqsData {
   FaqsData._();
 
-  static const items = <FaqItem>[
-    FaqItem(
-      question: 'Lorem ipsum dolor sit amet consectetur ?',
-      answer:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-    ),
-    FaqItem(
-      question: 'How do I care for my retainers daily?',
-      answer:
-          'Rinse your retainers with lukewarm water after each use, brush gently with a soft toothbrush, and store them in their case when not wearing them. Avoid hot water, which can warp the material.',
-    ),
-    FaqItem(
-      question: 'What should I do if my retainer feels tight?',
-      answer:
-          'Mild tightness can be normal if you have not worn your retainer for a short period. Wear it as directed and contact your orthodontist if discomfort persists or worsens.',
-    ),
-    FaqItem(
-      question: 'Can I eat while wearing my retainers?',
-      answer:
-          'No. Remove your retainers before eating or drinking anything other than plain water to prevent damage, staining, and bacterial buildup.',
-    ),
-    FaqItem(
-      question: 'How often should I replace my retainer?',
-      answer:
-          'Replacement timing depends on wear and fit. Check the Retainers tab for usage insights and order a replacement when your retainer shows signs of wear or no longer fits comfortably.',
-    ),
+  static String get _faqQuestion1 => 'faq_question_1'.tr;
+  static String get _faqAnswer1 => 'faq_answer_1'.tr;
+  static String get _faqQuestion2 => 'faq_question_2'.tr;
+  static String get _faqAnswer2 => 'faq_answer_2'.tr;
+  static String get _faqQuestion3 => 'faq_question_3'.tr;
+  static String get _faqAnswer3 => 'faq_answer_3'.tr;
+  static String get _faqQuestion4 => 'faq_question_4'.tr;
+  static String get _faqAnswer4 => 'faq_answer_4'.tr;
+  static String get _faqQuestion5 => 'faq_question_5'.tr;
+  static String get _faqAnswer5 => 'faq_answer_5'.tr;
+
+  static List<FaqItem> get items => [
+    FaqItem(question: _faqQuestion1, answer: _faqAnswer1),
+    FaqItem(question: _faqQuestion2, answer: _faqAnswer2),
+    FaqItem(question: _faqQuestion3, answer: _faqAnswer3),
+    FaqItem(question: _faqQuestion4, answer: _faqAnswer4),
+    FaqItem(question: _faqQuestion5, answer: _faqAnswer5),
   ];
 }

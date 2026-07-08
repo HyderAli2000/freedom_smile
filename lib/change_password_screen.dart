@@ -36,9 +36,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     await AccountSuccessDialog.show(
       context,
       icon: Icons.lock_rounded,
-      message:
-          'Your password has been changed successfully. You can now login with your new password.',
-      buttonLabel: 'Go Back',
+      message: 'password_changed_success'.tr,
+      buttonLabel: 'go_back'.tr,
       onPressed: () {
         Navigator.of(context).pop();
         Get.back();
@@ -49,16 +48,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return CheckoutScaffold(
-      title: 'Change Password',
+      title: 'change_password'.tr,
       body: SingleChildScrollView(
         padding: EdgeInsets.only(top: 20.h, bottom: 16.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AccountPasswordField(
-              label: 'Existing Password',
+              label: 'existing_password'.tr,
               controller: _existingPasswordController,
-              hintText: 'Confirm Password',
+              hintText: 'confirm_password'.tr,
               obscureText: _obscureExisting,
               onToggleVisibility: () {
                 setState(() => _obscureExisting = !_obscureExisting);
@@ -66,22 +65,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             ),
             18.verticalSpace,
             AccountPasswordField(
-              label: 'New Password',
+              label: 'new_password'.tr,
               controller: _newPasswordController,
-              hintText: 'Create New Password',
+              hintText: 'create_new_password'.tr,
               obscureText: _obscureNew,
-              helperText: 'Must be at least 8 characters',
+              helperText: 'password_min_8_chars'.tr,
               onToggleVisibility: () {
                 setState(() => _obscureNew = !_obscureNew);
               },
             ),
             18.verticalSpace,
             AccountPasswordField(
-              label: 'Confirm Password',
+              label: 'confirm_password'.tr,
               controller: _confirmPasswordController,
-              hintText: 'Create New Password',
+              hintText: 'create_new_password'.tr,
               obscureText: _obscureConfirm,
-              helperText: 'Must be at least 8 characters',
+              helperText: 'password_min_8_chars'.tr,
               onToggleVisibility: () {
                 setState(() => _obscureConfirm = !_obscureConfirm);
               },
@@ -94,7 +93,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       bottom: Padding(
         padding: EdgeInsets.fromLTRB(0, 0, 0, 16.h),
         child: AccountPrimaryButton(
-          label: 'Reset Password',
+          label: 'reset_password'.tr,
           onPressed: _resetPassword,
         ),
       ),
