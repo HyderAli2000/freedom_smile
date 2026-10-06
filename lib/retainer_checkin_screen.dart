@@ -6,8 +6,30 @@ import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
 import 'package:get/get.dart';
 
-class RetainerCheckinScreen extends StatelessWidget {
-  const RetainerCheckinScreen({super.key});
+/// Screen 1 — Order Now / daily fit-check entry.
+/// Yes or No both continue to Fit Confirmation (screen 2).
+class RetainerCheckinScreen extends StatefulWidget {
+  const RetainerCheckinScreen({
+    super.key,
+    this.isOrderFlow = false,
+  });
+
+  /// True when opened from Order Now on Home/Retainers.
+  final bool isOrderFlow;
+
+  @override
+  State<RetainerCheckinScreen> createState() => _RetainerCheckinScreenState();
+}
+
+class _RetainerCheckinScreenState extends State<RetainerCheckinScreen> {
+  void _answer({required bool wearsRegularly}) {
+    Get.to(
+      () => FitConfirmationScreen(
+        wearsRegularly: wearsRegularly,
+        isOrderFlow: widget.isOrderFlow,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,63 +43,59 @@ class RetainerCheckinScreen extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                const PageHeader(showTitle: false),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          AssetImages.teeth,
-                          width: 280.w,
-                          height: 280.w,
-                          fit: BoxFit.contain,
-                        ),
-                        10.verticalSpace,
-                        Text(
-                          'Have you been wearing your\nretainer regularly?',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColor.textDark,
-                            height: 1.35,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 24.h),
-                  child: Row(
+          child: Column(
+            children: [
+              const PageHeader(showTitle: false),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: _CheckinButton(
-                          label: 'No',
-                          filled: false,
-                          onTap: () => Get.back(),
-                        ),
+                      Image.asset(
+                        AssetImages.teeth,
+                        width: 280.w,
+                        height: 280.w,
+                        fit: BoxFit.contain,
                       ),
-                      16.horizontalSpace,
-                      Expanded(
-                        child: _CheckinButton(
-                          label: 'Yes',
-                          filled: true,
-                          onTap: () {
-                            Get.to(() => const FitConfirmationScreen());
-                          },
+                      10.verticalSpace,
+                      Text(
+                        'Have you been wearing your\nretainer regularly?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.textDark,
+                          height: 1.35,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 24.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _CheckinButton(
+                        label: 'No',
+                        filled: false,
+                        onTap: () => _answer(wearsRegularly: false),
+                      ),
+                    ),
+                    16.horizontalSpace,
+                    Expanded(
+                      child: _CheckinButton(
+                        label: 'Yes',
+                        filled: true,
+                        onTap: () => _answer(wearsRegularly: true),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

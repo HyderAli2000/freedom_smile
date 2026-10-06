@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/storage/app_storage.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
 import 'package:freedom_smile/retainer_type_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
-import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/widgets/auth/auth_widgets.dart';
+import 'package:freedom_smile/widgets/common/profile_image_picker.dart';
 import 'package:get/get.dart';
 
 class CreateProfileScreen extends StatefulWidget {
@@ -31,6 +35,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
 
   String? _gender;
   String _countryCode = '+1';
+  bool _loading = false;
+  String? _localPicturePath;
 
   static const _genders = ['Male', 'Female', 'Other'];
   static const _countryCodes = ['+1', '+44', '+91', '+61'];
@@ -39,7 +45,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   void initState() {
     super.initState();
     _emailController = TextEditingController(
-      text: widget.prefillEmail ?? 'william.roy@domain.com',
+      text: widget.prefillEmail ?? AppStorage.email ?? '',
     );
   }
 
@@ -53,6 +59,57 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+
+  Future<void> _continue() async {
+    if (_loading) return;
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    if (firstName.isEmpty || lastName.isEmpty) {
+      ApiSnackbar.error('Please enter first and last name');
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      final phoneDigits = _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+      final profileBody = {
+        'step': 1,
+        'firstName': firstName,
+        'lastName': lastName,
+        'address': _addressController.text.trim(),
+        'city': _cityController.text.trim(),
+        'state': _stateController.text.trim(),
+        if (_gender != null) 'gender': _gender,
+        'phone': phoneDigits,
+        'countryCode': _countryCode,
+      };
+
+      // JSON first — multipart on create-profile often resets the connection
+      // on Android emulator → host.
+      await AuthService().createProfile(profileBody);
+
+      if (ProfileImagePickerUtil.isLocalFile(_localPicturePath)) {
+        try {
+          await AuthService().updateProfile(
+            const {},
+            profilePicturePath: _localPicturePath,
+          );
+        } on ApiException catch (e) {
+          ApiSnackbar.error(
+            'Profile saved, but photo upload failed.\n${e.message}',
+          );
+        }
+      }
+
+      Get.to(() => const RetainerTypeScreen());
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -80,7 +137,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                     padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 24.h),
                     child: Column(
                       children: [
-                        const _ProfileAvatarPicker(),
+                        ProfileImagePicker(
+                          localPath: _localPicturePath,
+                          networkUrl: AppStorage.profilePicture,
+                          size: 150.w,
+                          lightChrome: true,
+                          onChanged: (path) {
+                            setState(() => _localPicturePath = path);
+                          },
+                        ),
                         28.verticalSpace,
                         Row(
                           children: [
@@ -168,10 +233,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                         ),
                         32.verticalSpace,
                         AuthPrimaryButton(
-                          label: 'Continue',
-                          onPressed: () {
-                            Get.to(() => const RetainerTypeScreen());
-                          },
+                          label: _loading ? '...' : 'Continue',
+                          onPressed: _loading ? () {} : _continue,
                         ),
                       ],
                     ),
@@ -235,34 +298,6 @@ class _CreateProfileHeader extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ProfileAvatarPicker extends StatelessWidget {
-  const _ProfileAvatarPicker();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150.w,
-      height: 150.w,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColor.whiteColor,
-        border: Border.all(
-          color: AppColor.primaryBlue.withValues(alpha: 0.6),
-          width: 5.w,
-        ),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: AppColor.whiteColor.withValues(alpha: 0.35),
-        //     blurRadius: 18,
-        //     spreadRadius: 4,
-        //   ),
-        // ],
-      ),
-      child: Image.asset(AssetIcons.cam, color: AppColor.buttonTextClr),
     );
   }
 }

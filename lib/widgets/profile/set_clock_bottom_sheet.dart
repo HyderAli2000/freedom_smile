@@ -7,6 +7,27 @@ import 'package:get/get.dart';
 
 enum ReminderClockMode { add, edit }
 
+class ReminderClockValue {
+  const ReminderClockValue({
+    required this.hour,
+    required this.minute,
+    required this.isAm,
+    required this.isEnabled,
+  });
+
+  final int hour;
+  final int minute;
+  final bool isAm;
+  final bool isEnabled;
+
+  String get time =>
+      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+
+  String get period => isAm ? 'AM' : 'PM';
+}
+
+typedef ReminderClockCallback = void Function(ReminderClockValue value);
+
 class SetClockBottomSheet extends StatefulWidget {
   const SetClockBottomSheet({
     super.key,
@@ -15,21 +36,24 @@ class SetClockBottomSheet extends StatefulWidget {
     this.initialHour = 7,
     this.initialMinute = 0,
     this.initialIsAm = true,
+    this.initialEnabled = true,
   });
 
-  final VoidCallback onNext;
+  final ReminderClockCallback onNext;
   final ReminderClockMode mode;
   final int initialHour;
   final int initialMinute;
   final bool initialIsAm;
+  final bool initialEnabled;
 
   static Future<void> show(
     BuildContext context, {
-    required VoidCallback onNext,
+    required ReminderClockCallback onNext,
     ReminderClockMode mode = ReminderClockMode.add,
     int initialHour = 7,
     int initialMinute = 0,
     bool initialIsAm = true,
+    bool initialEnabled = true,
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -41,6 +65,7 @@ class SetClockBottomSheet extends StatefulWidget {
         initialHour: initialHour,
         initialMinute: initialMinute,
         initialIsAm: initialIsAm,
+        initialEnabled: initialEnabled,
       ),
     );
   }
@@ -61,6 +86,7 @@ class _SetClockBottomSheetState extends State<SetClockBottomSheet> {
     _hour = widget.initialHour;
     _minute = widget.initialMinute;
     _isAm = widget.initialIsAm;
+    _dailyReminderEnabled = widget.initialEnabled;
   }
 
   void _selectHour(int hour) {
@@ -188,7 +214,16 @@ class _SetClockBottomSheetState extends State<SetClockBottomSheet> {
               width: double.infinity,
               height: 52.h,
               child: ElevatedButton(
-                onPressed: widget.onNext,
+                onPressed: () {
+                  widget.onNext(
+                    ReminderClockValue(
+                      hour: _hour,
+                      minute: _minute,
+                      isAm: _isAm,
+                      isEnabled: _dailyReminderEnabled,
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColor.whiteColor,
                   foregroundColor: AppColor.primaryBlue,

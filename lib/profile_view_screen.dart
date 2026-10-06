@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/storage/app_storage.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/models/api_models.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
 import 'package:freedom_smile/data/user_profile_data.dart';
 import 'package:freedom_smile/edit_profile_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
+import 'package:freedom_smile/widgets/common/app_network_image.dart';
 import 'package:freedom_smile/widgets/profile/profile_widgets.dart';
 import 'package:get/get.dart';
 
@@ -21,11 +26,73 @@ class ProfileViewScreen extends StatefulWidget {
 
 class _ProfileViewScreenState extends State<ProfileViewScreen> {
   late UserProfile _profile;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _profile = widget.initialProfile ?? UserProfile.sample;
+    _profile = widget.initialProfile ?? _fromStorage();
+    if (widget.initialProfile == null) {
+      _loadProfile();
+    }
+  }
+
+  UserProfile _fromStorage() {
+    final name = AppStorage.displayName;
+    final email = AppStorage.email ?? '';
+    return UserProfile(
+      displayName: name.isEmpty ? UserProfile.sample.displayName : name,
+      profileEmail: email.isEmpty ? UserProfile.sample.profileEmail : email,
+      firstName: AppStorage.firstName ?? '',
+      lastName: AppStorage.lastName ?? '',
+      address: '',
+      city: '',
+      state: '',
+      gender: 'Male',
+      email: email,
+      countryCode: '+1',
+      phone: '',
+      profilePicture: AppStorage.profilePicture,
+    );
+  }
+
+  UserProfile _fromUser(AuthUser user) {
+    final first = user.firstName ?? '';
+    final last = user.lastName ?? '';
+    final display = user.displayName.isNotEmpty
+        ? user.displayName
+        : '$first $last'.trim();
+    return UserProfile(
+      displayName: display.isEmpty ? (user.email ?? '') : display,
+      profileEmail: user.email ?? '',
+      firstName: first,
+      lastName: last,
+      address: user.address ?? '',
+      city: user.city ?? '',
+      state: user.state ?? '',
+      gender: user.gender ?? 'Male',
+      email: user.email ?? '',
+      countryCode: user.countryCode ?? '+1',
+      phone: user.phone ?? '',
+      profilePicture: user.profilePicture,
+    );
+  }
+
+  Future<void> _loadProfile() async {
+    setState(() => _loading = true);
+    try {
+      final result = await AuthService().getProfile();
+      final user = result.user;
+      if (user != null && mounted) {
+        setState(() => _profile = _fromUser(user));
+      }
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (_) {
+      // Keep cached / sample values.
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   Future<void> _openEditProfile() async {
@@ -55,7 +122,13 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
               _ProfileTopSection(
                 displayName: _profile.displayName,
                 email: _profile.profileEmail,
+                profilePicture: _profile.profilePicture,
+                onAvatarTap: _openEditProfile,
               ),
+              if (_loading)
+                const LinearProgressIndicator(minHeight: 2)
+              else
+                SizedBox(height: 2.h),
               Expanded(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
@@ -63,7 +136,6 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
                 ),
               ),
               Container(
-                // color: AppColor.whiteColor.withValues(alpha: 0.6),
                 padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
                 child: ProfilePrimaryButton(
                   label: 'edit_personal_information'.tr,
@@ -79,10 +151,17 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
 }
 
 class _ProfileTopSection extends StatelessWidget {
-  const _ProfileTopSection({required this.displayName, required this.email});
+  const _ProfileTopSection({
+    required this.displayName,
+    required this.email,
+    this.profilePicture,
+    this.onAvatarTap,
+  });
 
   final String displayName;
   final String email;
+  final String? profilePicture;
+  final VoidCallback? onAvatarTap;
 
   @override
   Widget build(BuildContext context) {
@@ -119,60 +198,62 @@ class _ProfileTopSection extends StatelessWidget {
             ),
             Positioned(
               bottom: -avatarOverlap,
-              child: Stack(
-                clipBehavior: Clip.none,
-                // alignment: Alignment.bottomCenter,
-                children: [
-                  Container(
-                    width: avatarSize,
-                    height: avatarSize,
-                    padding: EdgeInsets.all(ringWidth),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color.fromARGB(255, 193, 193, 193),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 14,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(AssetImages.p1, fit: BoxFit.cover),
-                    ),
-                  ),
-                  Positioned(
-                    right: 0.w,
-                    bottom: 0.h,
-                    child: Container(
-                      width: 34.w,
-                      height: 34.w,
+              child: GestureDetector(
+                onTap: onAvatarTap,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: avatarSize,
+                      height: avatarSize,
+                      padding: EdgeInsets.all(ringWidth),
                       decoration: BoxDecoration(
-                        color: AppColor.whiteColor,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColor.borderLightBlue.withValues(
-                            alpha: 0.45,
-                          ),
-                        ),
+                        color: const Color.fromARGB(255, 193, 193, 193),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 14,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      padding: EdgeInsets.all(8.w),
-                      child: Image.asset(
-                        AssetIcons.cam,
-                        color: AppColor.textDark.withValues(alpha: 0.75),
-                        fit: BoxFit.contain,
+                      child: ClipOval(
+                        child: AppNetworkImage(source: profilePicture),
                       ),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      right: 0.w,
+                      bottom: 0.h,
+                      child: Container(
+                        width: 34.w,
+                        height: 34.w,
+                        decoration: BoxDecoration(
+                          color: AppColor.whiteColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColor.borderLightBlue.withValues(
+                              alpha: 0.45,
+                            ),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        padding: EdgeInsets.all(8.w),
+                        child: Image.asset(
+                          AssetIcons.cam,
+                          color: AppColor.textDark.withValues(alpha: 0.75),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:freedom_smile/checkout_screen.dart';
-import 'package:freedom_smile/navbar.dart';
+import 'package:freedom_smile/appointments_screen.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_map.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/user_service.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
@@ -11,24 +13,165 @@ import 'package:get/get.dart';
 
 /// Book appointment — date/time selection then confirmation dialog.
 class BookAppointmentUser extends StatefulWidget {
-  const BookAppointmentUser({super.key});
+  const BookAppointmentUser({
+    super.key,
+    this.orthodontistId,
+    this.orthodontistName,
+    this.source = 'general',
+    this.notes = '',
+  });
+
+  final String? orthodontistId;
+  final String? orthodontistName;
+  /// Backend allows only `general` | `reevaluation`.
+  final String source;
+  final String notes;
 
   @override
   State<BookAppointmentUser> createState() => _BookAppointmentUserState();
 }
 
 class _BookAppointmentUserState extends State<BookAppointmentUser> {
-  static const _monthLabel = 'April 2026';
-  static const _daysInMonth = 30;
-  static const _firstWeekdayOffset = 3; // Wednesday
+  final _service = UserService();
 
-  int _selectedDay = 25;
-  int _selectedTimeIndex = 0;
+  late DateTime _month;
+  late int _selectedDay;
+  int _selectedTimeIndex = -1;
+  bool _loadingSlots = false;
+  bool _booking = false;
+  List<_SlotOption> _timeSlots = const [];
 
-  static const _timeSlots = ['01:00 PM', '02:00 PM', '05:00 PM'];
+  String? get _orthodontistId {
+    final fromWidget = widget.orthodontistId?.trim();
+    if (fromWidget != null && fromWidget.isNotEmpty) return fromWidget;
+    final args = Get.arguments;
+    if (args is Map) {
+      final id = ApiMap.str(args['orthodontistId'] ?? args['id']);
+      if (id.isNotEmpty) return id;
+    }
+    if (args is String && args.trim().isNotEmpty) return args.trim();
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _month = DateTime(now.year, now.month);
+    _selectedDay = now.day;
+    _loadSlots();
+  }
+
+  String _dateParam(DateTime date) {
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    return '${date.year}-$m-$d';
+  }
+
+  DateTime get _selectedDate =>
+      DateTime(_month.year, _month.month, _selectedDay);
+
+  String get _monthLabel {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return '${months[_month.month - 1]} ${_month.year}';
+  }
+
+  int get _daysInMonth =>
+      DateTime(_month.year, _month.month + 1, 0).day;
+
+  /// Sunday = 0
+  int get _firstWeekdayOffset =>
+      DateTime(_month.year, _month.month, 1).weekday % 7;
+
+  Future<void> _loadSlots() async {
+    final id = _orthodontistId;
+    if (id == null) {
+      setState(() {
+        _timeSlots = const [];
+        _selectedTimeIndex = -1;
+      });
+      return;
+    }
+    setState(() {
+      _loadingSlots = true;
+      _selectedTimeIndex = -1;
+    });
+    try {
+      final result = await _service.orthodontistSlots(
+        id,
+        date: _dateParam(_selectedDate),
+      );
+      final rows = ApiMap.mapList(result.data, 'slots');
+      _timeSlots = rows
+          .map(
+            (m) => _SlotOption(
+              time: ApiMap.str(m['time']),
+              available: ApiMap.boolVal(m['available'], true),
+            ),
+          )
+          .where((s) => s.time.isNotEmpty)
+          .toList();
+      final firstAvailable = _timeSlots.indexWhere((s) => s.available);
+      _selectedTimeIndex = firstAvailable;
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+      _timeSlots = const [];
+    } catch (_) {
+      ApiSnackbar.error('Something went wrong. Please try again.');
+      _timeSlots = const [];
+    } finally {
+      if (mounted) setState(() => _loadingSlots = false);
+    }
+  }
 
   Future<void> _confirmAppointment() async {
-    await showAppointmentConfirmedDialog(context);
+    final id = _orthodontistId;
+    if (id == null) {
+      ApiSnackbar.error('Please select an orthodontist first');
+      return;
+    }
+    if (_selectedTimeIndex < 0 || _selectedTimeIndex >= _timeSlots.length) {
+      ApiSnackbar.error('Please select a time slot');
+      return;
+    }
+    final slot = _timeSlots[_selectedTimeIndex];
+    if (!slot.available) {
+      ApiSnackbar.error('That time slot is not available');
+      return;
+    }
+    if (_booking) return;
+    setState(() => _booking = true);
+    try {
+      final source = widget.source == 'reevaluation' ? 'reevaluation' : 'general';
+      final result = await _service.bookAppointment({
+        'orthodontistId': id,
+        'date': _dateParam(_selectedDate),
+        'timeSlot': slot.time,
+        'source': source,
+        if (widget.notes.trim().isNotEmpty) 'notes': widget.notes.trim(),
+      });
+      ApiSnackbar.success(result.message);
+      if (!mounted) return;
+      await showAppointmentConfirmedDialog(context);
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (_) {
+      ApiSnackbar.error('Something went wrong. Please try again.');
+    } finally {
+      if (mounted) setState(() => _booking = false);
+    }
+  }
+
+  void _changeMonth(int delta) {
+    setState(() {
+      _month = DateTime(_month.year, _month.month + delta);
+      final maxDay = _daysInMonth;
+      if (_selectedDay > maxDay) _selectedDay = maxDay;
+    });
+    _loadSlots();
   }
 
   @override
@@ -55,6 +198,19 @@ class _BookAppointmentUserState extends State<BookAppointmentUser> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        if ((widget.orthodontistName ?? '').isNotEmpty) ...[
+                          Text(
+                            widget.orthodontistName!,
+                            style: TextStyle(
+                              fontFamily: AppFonts.family,
+                              fontFamilyFallback: AppFonts.fallback,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.textBody,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                        ],
                         Text(
                           'Select Date',
                           style: TextStyle(
@@ -71,8 +227,12 @@ class _BookAppointmentUserState extends State<BookAppointmentUser> {
                           daysInMonth: _daysInMonth,
                           firstWeekdayOffset: _firstWeekdayOffset,
                           selectedDay: _selectedDay,
-                          onDaySelected: (day) =>
-                              setState(() => _selectedDay = day),
+                          onPrevMonth: () => _changeMonth(-1),
+                          onNextMonth: () => _changeMonth(1),
+                          onDaySelected: (day) {
+                            setState(() => _selectedDay = day);
+                            _loadSlots();
+                          },
                         ),
                         SizedBox(height: 24.h),
                         Text(
@@ -86,26 +246,44 @@ class _BookAppointmentUserState extends State<BookAppointmentUser> {
                           ),
                         ),
                         SizedBox(height: 12.h),
-                        Row(
-                          children: List.generate(_timeSlots.length, (index) {
-                            return Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  right: index < _timeSlots.length - 1
-                                      ? 10.w
-                                      : 0,
-                                ),
-                                child: _TimeSlotChip(
-                                  label: _timeSlots[index],
-                                  selected: _selectedTimeIndex == index,
-                                  onTap: () => setState(
-                                    () => _selectedTimeIndex = index,
+                        if (_loadingSlots)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        else if (_timeSlots.isEmpty)
+                          Text(
+                            'No slots available for this date',
+                            style: TextStyle(
+                              fontFamily: AppFonts.family,
+                              fontFamilyFallback: AppFonts.fallback,
+                              fontSize: 13.sp,
+                              color: AppColor.textBody,
+                            ),
+                          )
+                        else
+                          Wrap(
+                            spacing: 10.w,
+                            runSpacing: 10.h,
+                            children: List.generate(_timeSlots.length, (index) {
+                              final slot = _timeSlots[index];
+                              return SizedBox(
+                                width: (1.sw - 40.w - 20.w) / 3,
+                                child: Opacity(
+                                  opacity: slot.available ? 1 : 0.45,
+                                  child: _TimeSlotChip(
+                                    label: slot.time,
+                                    selected: _selectedTimeIndex == index,
+                                    onTap: slot.available
+                                        ? () => setState(
+                                              () => _selectedTimeIndex = index,
+                                            )
+                                        : () {},
                                   ),
                                 ),
-                              ),
-                            );
-                          }),
-                        ),
+                              );
+                            }),
+                          ),
                       ],
                     ),
                   ),
@@ -116,7 +294,7 @@ class _BookAppointmentUserState extends State<BookAppointmentUser> {
                     width: double.infinity,
                     height: 52.h,
                     child: ElevatedButton(
-                      onPressed: _confirmAppointment,
+                      onPressed: _booking ? null : _confirmAppointment,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColor.primaryBlue,
                         foregroundColor: AppColor.whiteColor,
@@ -126,7 +304,7 @@ class _BookAppointmentUserState extends State<BookAppointmentUser> {
                         ),
                       ),
                       child: Text(
-                        'Confirm Appointment',
+                        _booking ? '...' : 'Confirm Appointment',
                         style: TextStyle(
                           fontFamily: AppFonts.family,
                           fontFamilyFallback: AppFonts.fallback,
@@ -147,6 +325,13 @@ class _BookAppointmentUserState extends State<BookAppointmentUser> {
   }
 }
 
+class _SlotOption {
+  const _SlotOption({required this.time, required this.available});
+
+  final String time;
+  final bool available;
+}
+
 class _CalendarCard extends StatelessWidget {
   const _CalendarCard({
     required this.monthLabel,
@@ -154,6 +339,8 @@ class _CalendarCard extends StatelessWidget {
     required this.firstWeekdayOffset,
     required this.selectedDay,
     required this.onDaySelected,
+    required this.onPrevMonth,
+    required this.onNextMonth,
   });
 
   final String monthLabel;
@@ -161,6 +348,8 @@ class _CalendarCard extends StatelessWidget {
   final int firstWeekdayOffset;
   final int selectedDay;
   final ValueChanged<int> onDaySelected;
+  final VoidCallback onPrevMonth;
+  final VoidCallback onNextMonth;
 
   static const _weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -193,10 +382,13 @@ class _CalendarCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.chevron_left_rounded,
-                color: AppColor.whiteColor,
-                size: 24.sp,
+              GestureDetector(
+                onTap: onPrevMonth,
+                child: Icon(
+                  Icons.chevron_left_rounded,
+                  color: AppColor.whiteColor,
+                  size: 24.sp,
+                ),
               ),
               Expanded(
                 child: Text(
@@ -211,10 +403,13 @@ class _CalendarCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: AppColor.whiteColor,
-                size: 24.sp,
+              GestureDetector(
+                onTap: onNextMonth,
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColor.whiteColor,
+                  size: 24.sp,
+                ),
               ),
             ],
           ),
@@ -284,7 +479,7 @@ class _CalendarDayCell extends StatelessWidget {
               fontFamilyFallback: AppFonts.fallback,
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,
-              color: selected ? AppColor.whiteColor : AppColor.whiteColor,
+              color: AppColor.whiteColor,
             ),
           ),
         ),
@@ -347,7 +542,7 @@ Future<void> showAppointmentConfirmedDialog(BuildContext context) {
       onClose: () => Navigator.of(dialogContext).pop(),
       onContinue: () {
         Navigator.of(dialogContext).pop();
-        Get.to(() => const CheckoutScreen());
+        Get.off(() => const AppointmentsScreen());
       },
     ),
   );
@@ -424,7 +619,6 @@ class _AppointmentConfirmedDialog extends StatelessWidget {
                 height: 72.r,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  // color: AppColor.primaryBlue,
                   border: Border.all(color: AppColor.primaryBlue, width: 2),
                 ),
                 child: Icon(

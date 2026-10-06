@@ -34,6 +34,10 @@ class AppTranslations extends Translations {
     'section_delete_account': 'Delete Account',
     'section_agreements': 'Agreements',
     'section_about_app': 'About App',
+    'logout': 'Logout',
+    'logout_confirm': 'Are you sure you want to logout?',
+    'cancel': 'Cancel',
+    'settings_logout_subtitle': 'Sign out of your account',
     'settings_chat_title': 'Chat',
     'settings_chat_subtitle': 'Start chat with your orthodontist',
     'settings_scheduled_appointments_title': 'Scheduled Appointments',
@@ -191,6 +195,9 @@ class AppTranslations extends Translations {
     'profile_updated_message':
         'You have successfully updated your profile.',
     'continue': 'Continue',
+    'photo_gallery': 'Choose from Gallery',
+    'photo_camera': 'Take Photo',
+    'remove_photo': 'Remove Photo',
 
     // Reminders
     'set_reminder': 'Set Reminder',
@@ -198,6 +205,8 @@ class AppTranslations extends Translations {
     'your_reminder': 'Your Reminder',
     'reminder_time_night_sample': '10:00 PM (Night)',
     'edit': 'Edit',
+    'done': 'Done',
+    'delete': 'Delete',
     'new_reminder': 'New Reminder',
     'step_4_of_5': 'Step 4/5',
     'what_time_remind_you': 'What time should we remind you?',
@@ -342,6 +351,10 @@ class AppTranslations extends Translations {
     'section_delete_account': 'Eliminar cuenta',
     'section_agreements': 'Acuerdos',
     'section_about_app': 'Acerca de la app',
+    'logout': 'Cerrar sesión',
+    'logout_confirm': '¿Seguro que quieres cerrar sesión?',
+    'cancel': 'Cancelar',
+    'settings_logout_subtitle': 'Salir de tu cuenta',
     'settings_chat_title': 'Chat',
     'settings_chat_subtitle': 'Inicia un chat con tu ortodoncista',
     'settings_scheduled_appointments_title': 'Citas programadas',
@@ -502,6 +515,9 @@ class AppTranslations extends Translations {
     'profile_updated_message':
         'Has actualizado tu perfil correctamente.',
     'continue': 'Continuar',
+    'photo_gallery': 'Elegir de la galería',
+    'photo_camera': 'Tomar foto',
+    'remove_photo': 'Eliminar foto',
 
     // Reminders
     'set_reminder': 'Configurar recordatorio',
@@ -509,6 +525,8 @@ class AppTranslations extends Translations {
     'your_reminder': 'Tu recordatorio',
     'reminder_time_night_sample': '10:00 PM (Noche)',
     'edit': 'Editar',
+    'done': 'Listo',
+    'delete': 'Eliminar',
     'new_reminder': 'Nuevo recordatorio',
     'step_4_of_5': 'Paso 4/5',
     'what_time_remind_you': '¿A qué hora debemos recordarte?',

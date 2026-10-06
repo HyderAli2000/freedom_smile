@@ -9,16 +9,33 @@ class NotificationItem {
     required this.title,
     required this.body,
     required this.timestamp,
+    this.id = '',
     this.icon,
     this.showActions = false,
+    this.isRead = false,
   });
 
+  final String id;
   final NotificationKind kind;
   final String title;
   final String body;
   final String timestamp;
   final IconData? icon;
   final bool showActions;
+  final bool isRead;
+
+  NotificationItem copyWith({bool? isRead, bool? showActions}) {
+    return NotificationItem(
+      id: id,
+      kind: kind,
+      title: title,
+      body: body,
+      timestamp: timestamp,
+      icon: icon,
+      showActions: showActions ?? this.showActions,
+      isRead: isRead ?? this.isRead,
+    );
+  }
 }
 
 class NotificationsData {

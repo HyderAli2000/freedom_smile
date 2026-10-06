@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:freedom_smile/create_profile.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/core/utils/auth_navigation.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
+import 'package:freedom_smile/reset_password_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/widgets/auth/auth_widgets.dart';
@@ -73,26 +77,52 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.dispose();
   }
 
-  void _onOtpCompleted(String pin) {
+  Future<void> _onOtpCompleted(String pin) async {
     if (_openedProfile) return;
     _openedProfile = true;
     FocusScope.of(context).unfocus();
 
-    if (widget.isForgotPassword) {
-      // TODO: Navigate to reset password screen.
-      return;
-    }
+    try {
+      final purpose = widget.isForgotPassword ? 'reset' : 'verify';
+      final result = await AuthService().verifyOtp(
+        email: widget.email,
+        otp: pin,
+        purpose: purpose,
+      );
+      ApiSnackbar.success(result.message);
 
-    Get.to(
-      () => CreateProfileScreen(prefillEmail: widget.email, isEdit: false),
-    );
+      if (widget.isForgotPassword) {
+        Get.to(() => const ResetPasswordScreen());
+        return;
+      }
+
+      await AuthNavigation.afterAuthResult(result, email: widget.email);
+    } on ApiException catch (e) {
+      _openedProfile = false;
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      _openedProfile = false;
+      ApiSnackbar.error(e.toString());
+    }
   }
 
-  void _onResend() {
-    setState(() {
-      _controller.start();
-      complete = false;
-    });
+  Future<void> _onResend() async {
+    try {
+      final purpose = widget.isForgotPassword ? 'reset' : 'verify';
+      final result = await AuthService().sendOtp(
+        email: widget.email,
+        purpose: purpose,
+      );
+      ApiSnackbar.success(result.message);
+      setState(() {
+        _controller.start();
+        complete = false;
+      });
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    }
   }
 
   @override

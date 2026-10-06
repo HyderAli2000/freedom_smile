@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/controllers/locale_controller.dart';
+import 'package:freedom_smile/core/storage/app_storage.dart';
 import 'package:freedom_smile/localization/app_translations.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppStorage.init();
   Get.put(LocaleController());
   runApp(const MyApp());
 }

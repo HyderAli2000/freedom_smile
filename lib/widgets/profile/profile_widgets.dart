@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
-import 'package:freedom_smile/utils/assets_icons.dart';
-import 'package:freedom_smile/utils/assets_images.dart';
+import 'package:freedom_smile/widgets/common/profile_image_picker.dart';
 
 class ProfileAvatarSection extends StatelessWidget {
   const ProfileAvatarSection({
@@ -11,62 +10,28 @@ class ProfileAvatarSection extends StatelessWidget {
     required this.displayName,
     required this.email,
     this.showCamera = false,
+    this.profilePictureUrl,
+    this.localPath,
+    this.onImageChanged,
   });
 
   final String displayName;
   final String email;
   final bool showCamera;
+  final String? profilePictureUrl;
+  final String? localPath;
+  final ValueChanged<String?>? onImageChanged;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: 120.w,
-              height: 120.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColor.primaryBlue.withValues(alpha: 0.35),
-                  width: 3,
-                ),
-                image: DecorationImage(
-                  image: AssetImage(AssetImages.p1),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            if (showCamera)
-              Positioned(
-                right: 4.w,
-                bottom: 4.h,
-                child: Container(
-                  width: 34.w,
-                  height: 34.w,
-                  decoration: BoxDecoration(
-                    color: AppColor.whiteColor,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColor.primaryBlue, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  padding: EdgeInsets.all(7.w),
-                  child: Image.asset(
-                    AssetIcons.cam,
-                    color: AppColor.primaryBlue,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-          ],
+        ProfileImagePicker(
+          networkUrl: profilePictureUrl,
+          localPath: localPath,
+          size: 120.w,
+          showCamera: showCamera,
+          onChanged: showCamera ? onImageChanged : null,
         ),
         16.verticalSpace,
         Text(
@@ -94,6 +59,7 @@ class ProfileAvatarSection extends StatelessWidget {
     );
   }
 }
+
 
 class ProfileInfoRow extends StatelessWidget {
   const ProfileInfoRow({

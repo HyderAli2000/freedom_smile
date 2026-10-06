@@ -1,15 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/content_service.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
 import 'package:get/get.dart';
 
-class AboutAppScreen extends StatelessWidget {
+class AboutAppScreen extends StatefulWidget {
   const AboutAppScreen({super.key});
 
-  static const _appVersion = '1.0.0';
+  @override
+  State<AboutAppScreen> createState() => _AboutAppScreenState();
+}
+
+class _AboutAppScreenState extends State<AboutAppScreen> {
+  static const _fallbackVersion = '1.0.0';
+
+  bool _loading = true;
+  String _heading = '';
+  String _body = '';
+  String _version = _fallbackVersion;
+
+  @override
+  void initState() {
+    super.initState();
+    _heading = 'about_section_heading'.tr;
+    _body = 'about_section_body'.tr;
+    _loadAbout();
+  }
+
+  Future<void> _loadAbout() async {
+    try {
+      final result = await ContentService().getCms('about');
+      final data = result.data;
+      if (data is Map) {
+        final page = data['page'];
+        if (page is Map) {
+          final map = Map<String, dynamic>.from(page);
+          final title = (map['title'] ?? '').toString();
+          final content = (map['content'] ?? map['body'] ?? '').toString();
+          final version = (map['version'] ?? '').toString();
+          if (title.isNotEmpty) _heading = title;
+          if (content.isNotEmpty) _body = content;
+          if (version.isNotEmpty) _version = version;
+        }
+      }
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (_) {
+      // Keep localized fallback copy.
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,26 +92,19 @@ class AboutAppScreen extends StatelessWidget {
                       width: 1.2,
                     ),
                   ),
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 24.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _AboutSection(
-                          heading: 'about_section_heading'.tr,
-                          body: 'about_section_body'.tr,
+                  child: _loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(
+                          padding:
+                              EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 24.h),
+                          child: _AboutSection(
+                            heading: _heading,
+                            body: _body,
+                          ),
                         ),
-                        28.verticalSpace,
-                        _AboutSection(
-                          heading: 'about_section_heading'.tr,
-                          body: 'about_section_body'.tr,
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               ),
-              const _AboutFooter(version: _appVersion),
+              _AboutFooter(version: _version),
             ],
           ),
         ),

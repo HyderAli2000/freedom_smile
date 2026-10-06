@@ -1,35 +1,180 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_map.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/content_service.dart';
+import 'package:freedom_smile/data/services/user_service.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:get/get.dart';
 
-class ReferralScreen extends StatelessWidget {
+class ReferralScreen extends StatefulWidget {
   const ReferralScreen({super.key});
 
-  static const _referralCode = '#494944';
+  @override
+  State<ReferralScreen> createState() => _ReferralScreenState();
+}
+
+class _ReferralScreenState extends State<ReferralScreen> {
+  final _service = UserService();
+  final _contentService = ContentService();
+  bool _loading = true;
+  String _code = '';
+  int _approvedCount = 0;
+  int _goalCount = 3;
+  double _progressPercent = 0;
+  List<String> _tierLabels = const [];
+  List<_ReferralPerson> _referrals = const [];
+  List<_RewardItem> _rewards = const [];
+  String _nextRewardLabel = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  List<_RewardItem> _mapTiers(
+    List<Map<String, dynamic>> tiers, {
+    required int approvedCount,
+  }) {
+    final sorted = [...tiers]..sort((a, b) {
+      final ar = ApiMap.intVal(a['referralsRequired'] ?? a['sortOrder']);
+      final br = ApiMap.intVal(b['referralsRequired'] ?? b['sortOrder']);
+      return ar.compareTo(br);
+    });
+
+    return sorted.map((t) {
+      final required = ApiMap.intVal(t['referralsRequired']);
+      final earned = ApiMap.boolVal(t['unlocked'] ?? t['earned'] ?? t['completed']) ||
+          (required > 0 && approvedCount >= required);
+      final title = ApiMap.str(
+        t['title'] ?? t['name'] ?? t['reward'],
+        'Reward',
+      );
+      return _RewardItem(
+        image: ApiMap.imageOrFallback(
+          t['image'] ?? t['icon'],
+          AssetImages.gift,
+        ),
+        title: title,
+        statusKey: earned ? 'status_earned' : 'status_waiting',
+        earned: earned,
+        referralsRequired: required,
+      );
+    }).toList();
+  }
+
+  Future<void> _load() async {
+    setState(() => _loading = true);
+    try {
+      // Postman: GET /user/referrals (includes earned tiers via unlocked)
+      final result = await _service.referralSummary();
+      final data = ApiMap.map(result.data);
+      _code = ApiMap.str(data['code'] ?? data['referralCode']);
+      _approvedCount = ApiMap.intVal(data['approvedCount']);
+      _progressPercent = ApiMap.doubleVal(data['progressPercent']);
+      if (_progressPercent > 1) _progressPercent = _progressPercent / 100;
+
+      var tiers = ApiMap.mapList(data, 'tiers');
+      // Fallback: public reward tiers if summary has none
+      if (tiers.isEmpty) {
+        try {
+          final tiersResult = await _contentService.listRewardTiers();
+          final tiersData = ApiMap.map(tiersResult.data);
+          tiers = ApiMap.mapList(tiersData, 'tiers');
+          if (tiers.isEmpty) tiers = ApiMap.mapList(tiersResult.data);
+        } catch (_) {
+          // Keep empty; section will show empty state.
+        }
+      }
+
+      _rewards = _mapTiers(tiers, approvedCount: _approvedCount);
+      _tierLabels = _rewards.map((r) => r.title).where((e) => e.isNotEmpty).toList();
+      _goalCount = _rewards.isEmpty
+          ? 3
+          : _rewards
+              .map((r) => r.referralsRequired)
+              .fold<int>(0, (max, v) => v > max ? v : max);
+      if (_goalCount <= 0) _goalCount = _rewards.length;
+
+      final next = _rewards.where((r) => !r.earned).firstOrNull;
+      _nextRewardLabel = next == null
+          ? 'All rewards unlocked'
+          : 'Next Reward: ${next.title}';
+
+      final referrals = ApiMap.mapList(data, 'referrals');
+      _referrals = referrals.map((r) {
+        final referred = ApiMap.map(r['referredUser'] ?? r['user']);
+        final status = ApiMap.str(r['status']).toLowerCase();
+        final approved = status == 'approved' || status == 'completed';
+        final name = ApiMap.str(
+          referred['fullName'] ??
+              referred['firstName'] ??
+              r['name'] ??
+              r['fullName'] ??
+              r['username'],
+          'Friend',
+        );
+        final id = ApiMap.id(r);
+        final shortId =
+            id.length > 4 ? '#${id.substring(id.length - 4)}' : '#$id';
+        return _ReferralPerson(
+          name: name,
+          id: shortId,
+          statusKey: approved ? 'status_approved' : 'status_registered',
+          approved: approved,
+          image: ApiMap.imageOrFallback(
+            referred['profilePicture'] ?? r['profilePicture'],
+          ),
+        );
+      }).toList();
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (_) {
+      ApiSnackbar.error('Something went wrong. Please try again.');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 20.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _ReferHeroSection(),
-            24.verticalSpace,
-            const _RewardsProgressCard(),
-            28.verticalSpace,
-            const _InviteFriendsSection(code: _referralCode),
-            28.verticalSpace,
-            const _ReferralStatusTracker(),
-            28.verticalSpace,
-            const _EarnedRewardSection(),
-          ],
+      child: RefreshIndicator(
+        onRefresh: _load,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 20.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _ReferHeroSection(),
+              24.verticalSpace,
+              _RewardsProgressCard(
+                progress: _progressPercent,
+                approvedCount: _approvedCount,
+                goalCount: _goalCount,
+                tierLabels: _tierLabels,
+              ),
+              28.verticalSpace,
+              _InviteFriendsSection(code: _code.isEmpty ? '—' : _code),
+              28.verticalSpace,
+              _ReferralStatusTracker(referrals: _referrals),
+              28.verticalSpace,
+              _EarnedRewardSection(
+                rewards: _rewards,
+                nextRewardLabel: _nextRewardLabel,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -54,7 +199,6 @@ class _ReferHeroSection extends StatelessWidget {
           child: Image.asset(
             AssetImages.gift,
             fit: BoxFit.contain,
-            // size: 40.sp,
           ),
         ),
         20.verticalSpace,
@@ -88,16 +232,26 @@ class _ReferHeroSection extends StatelessWidget {
 }
 
 class _RewardsProgressCard extends StatelessWidget {
-  const _RewardsProgressCard();
+  const _RewardsProgressCard({
+    required this.progress,
+    required this.approvedCount,
+    required this.goalCount,
+    required this.tierLabels,
+  });
 
-  static const _milestoneKeys = [
-    'milestone_1',
-    'milestone_2',
-    'milestone_3',
-  ];
+  final double progress;
+  final int approvedCount;
+  final int goalCount;
+  final List<String> tierLabels;
 
   @override
   Widget build(BuildContext context) {
+    final labels = tierLabels.isNotEmpty
+        ? tierLabels
+        : ['milestone_1'.tr, 'milestone_2'.tr, 'milestone_3'.tr];
+    final goal = goalCount > 0 ? goalCount : labels.length;
+    final fractionLabel = '$approvedCount/$goal Completed';
+
     return Container(
       padding: EdgeInsets.all(18.w),
       decoration: BoxDecoration(
@@ -125,11 +279,11 @@ class _RewardsProgressCard extends StatelessWidget {
                       ),
                     ),
                     14.verticalSpace,
-                    ..._milestoneKeys.map(
-                      (key) => Padding(
+                    ...labels.map(
+                      (label) => Padding(
                         padding: EdgeInsets.only(bottom: 6.h),
                         child: Text(
-                          key.tr,
+                          label,
                           style: TextStyle(
                             fontFamily: AppFonts.family,
                             fontFamilyFallback: AppFonts.fallback,
@@ -183,7 +337,7 @@ class _RewardsProgressCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(999.r),
                   child: LinearProgressIndicator(
-                    value: 2 / 3,
+                    value: progress.clamp(0.0, 1.0),
                     minHeight: 8.h,
                     backgroundColor: AppColor.whiteColor.withValues(
                       alpha: 0.28,
@@ -196,7 +350,7 @@ class _RewardsProgressCard extends StatelessWidget {
           ),
           8.verticalSpace,
           Text(
-            'completed_fraction'.tr,
+            fractionLabel,
             style: TextStyle(
               fontFamily: AppFonts.family,
               fontFamilyFallback: AppFonts.fallback,
@@ -292,23 +446,9 @@ class _InviteFriendsSection extends StatelessWidget {
 }
 
 class _ReferralStatusTracker extends StatelessWidget {
-  const _ReferralStatusTracker();
+  const _ReferralStatusTracker({required this.referrals});
 
-  static const _referrals = [
-    _ReferralPerson(name: 'Kelvin', id: '#0012', statusKey: 'status_registered'),
-    _ReferralPerson(
-      name: 'John',
-      id: '#0011',
-      statusKey: 'status_approved',
-      approved: true,
-    ),
-    _ReferralPerson(
-      name: 'Mick',
-      id: '#0013',
-      statusKey: 'status_approved',
-      approved: true,
-    ),
-  ];
+  final List<_ReferralPerson> referrals;
 
   @override
   Widget build(BuildContext context) {
@@ -326,14 +466,30 @@ class _ReferralStatusTracker extends StatelessWidget {
           ),
         ),
         16.verticalSpace,
-        Row(
-          children: _referrals
-              .map(
-                (person) =>
-                    Expanded(child: _ReferralPersonCard(person: person)),
-              )
-              .toList(),
-        ),
+        if (referrals.isEmpty)
+          Text(
+            'No referrals yet',
+            style: TextStyle(
+              fontFamily: AppFonts.family,
+              fontFamilyFallback: AppFonts.fallback,
+              fontSize: 13.sp,
+              color: AppColor.textBody,
+            ),
+          )
+        else
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: referrals
+                  .map(
+                    (person) => Padding(
+                      padding: EdgeInsets.only(right: 16.w),
+                      child: _ReferralPersonCard(person: person),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
       ],
     );
   }
@@ -345,18 +501,27 @@ class _ReferralPerson {
     required this.id,
     required this.statusKey,
     this.approved = false,
+    this.image = AssetImages.p1,
   });
 
   final String name;
   final String id;
   final String statusKey;
   final bool approved;
+  final String image;
 }
 
 class _ReferralPersonCard extends StatelessWidget {
   const _ReferralPersonCard({required this.person});
 
   final _ReferralPerson person;
+
+  ImageProvider _avatar() {
+    final src = person.image;
+    final network = ApiMap.resolveMediaUrl(src);
+    if (network != null) return NetworkImage(network);
+    return AssetImage(src);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -367,7 +532,7 @@ class _ReferralPersonCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 32.r,
-              backgroundImage: AssetImage(AssetImages.p1),
+              backgroundImage: _avatar(),
             ),
             if (person.approved)
               Positioned(
@@ -419,28 +584,13 @@ class _ReferralPersonCard extends StatelessWidget {
 }
 
 class _EarnedRewardSection extends StatelessWidget {
-  const _EarnedRewardSection();
+  const _EarnedRewardSection({
+    required this.rewards,
+    required this.nextRewardLabel,
+  });
 
-  static const _rewards = [
-    _RewardItem(
-      image: AssetImages.gift,
-      titleKey: 'reward_amazon_gift_card',
-      statusKey: 'status_earned',
-      earned: true,
-    ),
-    _RewardItem(
-      image: AssetImages.pc3,
-      titleKey: 'reward_miami_heat_tickets',
-      statusKey: 'status_earned',
-      earned: true,
-    ),
-    _RewardItem(
-      image: AssetImages.pc2,
-      titleKey: 'reward_free_retainer',
-      statusKey: 'status_waiting',
-      earned: false,
-    ),
-  ];
+  final List<_RewardItem> rewards;
+  final String nextRewardLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -457,24 +607,37 @@ class _EarnedRewardSection extends StatelessWidget {
             color: AppColor.textDark,
           ),
         ),
-        6.verticalSpace,
-        Text(
-          'next_reward_free_retainer'.tr,
-          style: TextStyle(
-            fontFamily: AppFonts.family,
-            fontFamilyFallback: AppFonts.fallback,
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w400,
-            color: AppColor.textBody,
+        if (nextRewardLabel.isNotEmpty) ...[
+          6.verticalSpace,
+          Text(
+            nextRewardLabel,
+            style: TextStyle(
+              fontFamily: AppFonts.family,
+              fontFamilyFallback: AppFonts.fallback,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
+              color: AppColor.textBody,
+            ),
           ),
-        ),
+        ],
         16.verticalSpace,
-        ..._rewards.map(
-          (reward) => Padding(
-            padding: EdgeInsets.only(bottom: 12.h),
-            child: _RewardCard(reward: reward),
+        if (rewards.isEmpty)
+          Text(
+            'No rewards available yet',
+            style: TextStyle(
+              fontFamily: AppFonts.family,
+              fontFamilyFallback: AppFonts.fallback,
+              fontSize: 13.sp,
+              color: AppColor.textBody,
+            ),
+          )
+        else
+          ...rewards.map(
+            (reward) => Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: _RewardCard(reward: reward),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -483,21 +646,50 @@ class _EarnedRewardSection extends StatelessWidget {
 class _RewardItem {
   const _RewardItem({
     required this.image,
-    required this.titleKey,
     required this.statusKey,
     required this.earned,
+    this.title = '',
+    this.referralsRequired = 0,
   });
 
   final String image;
-  final String titleKey;
+  final String title;
   final String statusKey;
   final bool earned;
+  final int referralsRequired;
+
+  String get displayTitle => title;
 }
 
 class _RewardCard extends StatelessWidget {
   const _RewardCard({required this.reward});
 
   final _RewardItem reward;
+
+  Widget _thumb() {
+    final src = reward.image;
+    final network = ApiMap.resolveMediaUrl(src);
+    if (network != null) {
+      return Image.network(
+        network,
+        width: 72.w,
+        height: 72.w,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          AssetImages.gift,
+          width: 72.w,
+          height: 72.w,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    return Image.asset(
+      src,
+      width: 72.w,
+      height: 72.w,
+      fit: BoxFit.cover,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -514,12 +706,7 @@ class _RewardCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12.r),
-            child: Image.asset(
-              reward.image,
-              width: 72.w,
-              height: 72.w,
-              fit: BoxFit.cover,
-            ),
+            child: _thumb(),
           ),
           14.horizontalSpace,
           Expanded(
@@ -527,7 +714,7 @@ class _RewardCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  reward.titleKey.tr,
+                  reward.displayTitle,
                   style: TextStyle(
                     fontFamily: AppFonts.family,
                     fontFamilyFallback: AppFonts.fallback,

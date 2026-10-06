@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/core/utils/auth_navigation.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
 import 'package:freedom_smile/forget_password_screen.dart';
-import 'package:freedom_smile/navbar.dart';
-import 'package:freedom_smile/otp_verification_screen.dart';
 import 'package:freedom_smile/signup_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
@@ -19,14 +21,38 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = AuthService();
   bool _rememberMe = false;
   bool _obscurePassword = true;
+  bool _loading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    if (email.isEmpty || password.isEmpty) {
+      ApiSnackbar.error('Please enter email and password');
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      final result = await _authService.login(email: email, password: password);
+      ApiSnackbar.success(result.message);
+      await AuthNavigation.afterAuthResult(result, email: email);
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -117,8 +143,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           28.verticalSpace,
           AuthPrimaryButton(
-            label: 'login'.tr,
-            onPressed: () => Get.offAll(() => Navbar()),
+            label: _loading ? '...' : 'login'.tr,
+            onPressed: _loading ? () {} : _login,
           ),
           20.verticalSpace,
           AuthLinkText(

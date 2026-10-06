@@ -6,17 +6,28 @@ import 'package:freedom_smile/widgets/checkout/checkout_widgets.dart';
 import 'package:get/get.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen({super.key});
+  const CheckoutScreen({super.key, this.deliveryAddress});
+
+  final String? deliveryAddress;
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  final _address = TextEditingController(
-    text: 'Lorem Ave 13th St, New York, NY 10011',
-  );
+  late final TextEditingController _address;
   final _notes = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = (widget.deliveryAddress ?? '').trim();
+    _address = TextEditingController(
+      text: initial.isEmpty
+          ? 'Lorem Ave 13th St, New York, NY 10011'
+          : initial,
+    );
+  }
 
   @override
   void dispose() {

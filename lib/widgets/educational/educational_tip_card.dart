@@ -3,6 +3,41 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/data/educational_tips_data.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 
+class EducationalTipImage extends StatelessWidget {
+  const EducationalTipImage({
+    super.key,
+    required this.tip,
+    required this.height,
+  });
+
+  final EducationalTip tip;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    if (tip.hasNetworkImage) {
+      return Image.network(
+        tip.imageUrl!,
+        height: height,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          tip.image,
+          height: height,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    return Image.asset(
+      tip.image,
+      height: height,
+      width: double.infinity,
+      fit: BoxFit.cover,
+    );
+  }
+}
+
 class EducationalTipListCard extends StatelessWidget {
   const EducationalTipListCard({
     super.key,
@@ -28,12 +63,7 @@ class EducationalTipListCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(14.r),
-              child: Image.asset(
-                tip.image,
-                height: 160.h,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: EducationalTipImage(tip: tip, height: 160.h),
             ),
             14.verticalSpace,
             Text(
@@ -88,12 +118,7 @@ class EducationalTipHorizontalCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(14.r),
-              child: Image.asset(
-                tip.image,
-                height: 120.h,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: EducationalTipImage(tip: tip, height: 120.h),
             ),
             12.verticalSpace,
             Text(

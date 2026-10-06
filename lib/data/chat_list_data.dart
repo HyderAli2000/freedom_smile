@@ -6,12 +6,16 @@ class ChatListItem {
     required this.lastMessage,
     required this.time,
     required this.avatarAsset,
+    this.id = '',
+    this.type = '',
   });
 
+  final String id;
   final String name;
   final String lastMessage;
   final String time;
   final String avatarAsset;
+  final String type;
 }
 
 class ChatListData {
@@ -51,6 +55,7 @@ class ChatListData {
       lastMessage: _lastMessageHelp,
       time: 'Sun',
       avatarAsset: 'assets/images/pc4.png',
+      type: 'support',
     ),
   ];
 }

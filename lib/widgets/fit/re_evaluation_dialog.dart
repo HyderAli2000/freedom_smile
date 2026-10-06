@@ -2,10 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:freedom_smile/re_evaluation_map_user.dart';
+import 'package:freedom_smile/select_orthodontist_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
-import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:get/get.dart';
 
 class ReEvaluationDialog extends StatelessWidget {
@@ -110,7 +109,11 @@ class ReEvaluationDialog extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    Get.to(() => const ReEvaluationMapUser());
+                    Get.to(
+                      () => const SelectOrthodontistScreen(
+                        appointmentSource: 'reevaluation',
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColor.primaryBlue,

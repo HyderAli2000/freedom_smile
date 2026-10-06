@@ -36,6 +36,7 @@ class PageHeader extends StatelessWidget {
             ),
           Row(
             children: [
+              10.horizontalSpace,
               GestureDetector(
                 onTap: onBack ?? Get.back,
                 child: Container(

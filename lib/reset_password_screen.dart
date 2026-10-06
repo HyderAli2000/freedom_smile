@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:freedom_smile/location_access_screen.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
 import 'package:freedom_smile/login_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/widgets/auth/light_auth_layout.dart';
@@ -16,14 +18,45 @@ class ResetPasswordScreen extends StatefulWidget {
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _authService = AuthService();
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
+  bool _loading = false;
 
   @override
   void dispose() {
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _reset() async {
+    final password = _newPasswordController.text;
+    final confirm = _confirmPasswordController.text;
+    if (password.isEmpty || confirm.isEmpty) {
+      ApiSnackbar.error('Please enter and confirm your new password');
+      return;
+    }
+    if (password != confirm) {
+      ApiSnackbar.error('Passwords do not match');
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      final result = await _authService.resetPassword(
+        password: password,
+        confirmPassword: confirm,
+      );
+      ApiSnackbar.success(result.message);
+      Get.offAll(() => const LoginScreen());
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -76,8 +109,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           ),
           28.verticalSpace,
           LightAuthPrimaryButton(
-            label: 'Reset Now',
-            onPressed: () => Get.offAll(() => const LoginScreen()),
+            label: _loading ? '...' : 'Reset Now',
+            onPressed: _loading ? () {} : _reset,
           ),
         ],
       ),

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/storage/app_storage.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
-import 'package:freedom_smile/utils/assets_images.dart';
+import 'package:freedom_smile/widgets/common/app_network_image.dart';
 import 'package:get/get.dart';
 
 class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AppHomeAppBar({
     super.key,
-    this.userName = 'Anderson',
+    this.userName,
+    this.avatarUrl,
     this.onNotificationTap,
   });
 
-  final String userName;
+  final String? userName;
+  final String? avatarUrl;
   final VoidCallback? onNotificationTap;
 
   @override
@@ -20,6 +23,9 @@ class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final name = userName ?? AppStorage.greetingName;
+    final picture = avatarUrl ?? AppStorage.profilePicture;
+
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: Colors.transparent,
@@ -39,10 +45,10 @@ class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 shape: BoxShape.circle,
                 color: AppColor.primaryBlue,
               ),
-              child: CircleAvatar(
+              child: AppCircleAvatar(
                 radius: 24.r,
+                source: picture,
                 backgroundColor: AppColor.profileOptionBg,
-                backgroundImage: AssetImage(AssetImages.p1),
               ),
             ),
             12.horizontalSpace,
@@ -52,7 +58,7 @@ class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'hi_user'.trParams({'name': userName}),
+                    'hi_user'.trParams({'name': name}),
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w700,

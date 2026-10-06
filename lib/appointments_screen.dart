@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/appointment_detail_screen.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_map.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
 import 'package:freedom_smile/data/appointments_data.dart';
+import 'package:freedom_smile/data/services/user_service.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
-import 'package:freedom_smile/widgets/profile/reminder_set_dialog.dart';
-import 'package:freedom_smile/widgets/profile/set_clock_bottom_sheet.dart';
 import 'package:get/get.dart';
 
 class AppointmentsScreen extends StatefulWidget {
@@ -17,23 +20,58 @@ class AppointmentsScreen extends StatefulWidget {
 }
 
 class _AppointmentsScreenState extends State<AppointmentsScreen> {
+  final _service = UserService();
   bool _showCompleted = false;
+  bool _loading = true;
+  List<AppointmentItem> _items = const [];
 
-  List<AppointmentItem> get _filteredItems => AppointmentsData.items
-      .where((item) => item.isCompleted == _showCompleted)
-      .toList();
+  @override
+  void initState() {
+    super.initState();
+    _loadAppointments();
+  }
 
-  void _openEditReminderSheet(AppointmentItem item) {
-    SetClockBottomSheet.show(
-      context,
-      mode: ReminderClockMode.edit,
-      initialHour: item.initialHour,
-      initialIsAm: item.initialIsAm,
-      onNext: () {
-        Navigator.of(context).pop();
-        ReminderSetDialog.show(context, type: ReminderDialogType.updated);
-      },
+  Future<void> _loadAppointments() async {
+    setState(() => _loading = true);
+    try {
+      final status = _showCompleted ? 'completed' : 'pending';
+      final result = await _service.listAppointments(status: status);
+      final rows = ApiMap.mapList(result.data, 'appointments');
+      _items = rows.map(_mapAppointment).toList();
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (_) {
+      ApiSnackbar.error('Something went wrong. Please try again.');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  AppointmentItem _mapAppointment(Map<String, dynamic> map) {
+    final ortho = ApiMap.map(map['orthodontist']);
+    final id = ApiMap.id(map);
+    final shortId = id.length > 5 ? '#${id.substring(id.length - 5)}' : '#$id';
+    final ratingCount = ApiMap.intVal(ortho['ratingCount']);
+    final status = ApiMap.str(map['status']).toLowerCase();
+    return AppointmentItem(
+      id: shortId,
+      apiId: id,
+      title: ApiMap.str(ortho['name'], 'Orthodontist'),
+      time: ApiMap.str(map['timeSlot']),
+      date: ApiMap.formatDate(map['date']),
+      rating: ApiMap.doubleVal(ortho['rating']),
+      reviewCount: ratingCount > 0 ? '$ratingCount' : '0',
+      imageAsset: ApiMap.imageOrFallback(ortho['profilePicture']),
+      isCompleted: status == 'completed',
     );
+  }
+
+  Future<void> _openDetail(AppointmentItem item) async {
+    if (item.apiId.isEmpty) return;
+    final changed = await Get.to<bool>(
+      () => AppointmentDetailScreen(appointmentId: item.apiId),
+    );
+    if (changed == true && mounted) await _loadAppointments();
   }
 
   @override
@@ -58,22 +96,37 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                   showCompleted: _showCompleted,
                   onChanged: (completed) {
                     setState(() => _showCompleted = completed);
+                    _loadAppointments();
                   },
                 ),
                 20.verticalSpace,
                 Expanded(
-                  child: ListView.separated(
-                    padding: EdgeInsets.only(bottom: 20.h),
-                    itemCount: _filteredItems.length,
-                    separatorBuilder: (_, __) => 14.verticalSpace,
-                    itemBuilder: (context, index) {
-                      final item = _filteredItems[index];
-                      return _AppointmentCard(
-                        item: item,
-                        onTimeTap: () => _openEditReminderSheet(item),
-                      );
-                    },
-                  ),
+                  child: _loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _items.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No appointments',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.family,
+                                  fontFamilyFallback: AppFonts.fallback,
+                                  fontSize: 14.sp,
+                                  color: AppColor.textBody,
+                                ),
+                              ),
+                            )
+                          : ListView.separated(
+                              padding: EdgeInsets.only(bottom: 20.h),
+                              itemCount: _items.length,
+                              separatorBuilder: (_, __) => 14.verticalSpace,
+                              itemBuilder: (context, index) {
+                                final item = _items[index];
+                                return _AppointmentCard(
+                                  item: item,
+                                  onTap: () => _openDetail(item),
+                                );
+                              },
+                            ),
                 ),
               ],
             ),
@@ -163,118 +216,83 @@ class _TabChip extends StatelessWidget {
 }
 
 class _AppointmentCard extends StatelessWidget {
-  const _AppointmentCard({required this.item, required this.onTimeTap});
+  const _AppointmentCard({required this.item, required this.onTap});
 
   final AppointmentItem item;
-  final VoidCallback onTimeTap;
+  final VoidCallback onTap;
+
+  Widget _buildImage() {
+    final src = item.imageAsset;
+    if (ApiMap.isNetworkImage(src)) {
+      return Image.network(
+        ApiMap.resolveMediaUrl(src)!,
+        width: 72.w,
+        height: 72.w,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          AssetImages.pc1,
+          width: 72.w,
+          height: 72.w,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    return Image.asset(
+      src,
+      width: 72.w,
+      height: 72.w,
+      fit: BoxFit.cover,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: AppColor.borderLightBlue.withValues(alpha: 0.6),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+        child: Ink(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: AppColor.borderLightBlue.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(16.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12.r),
-            child: Image.asset(
-              item.imageAsset,
-              width: 72.w,
-              height: 72.w,
-              fit: BoxFit.cover,
-            ),
-          ),
-          12.horizontalSpace,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: _buildImage(),
+              ),
+              12.horizontalSpace,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        item.title,
-                        style: TextStyle(
-                          fontFamily: AppFonts.family,
-                          fontFamilyFallback: AppFonts.fallback,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColor.textDark,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      item.id,
-                      style: TextStyle(
-                        fontFamily: AppFonts.family,
-                        fontFamilyFallback: AppFonts.fallback,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColor.textBody,
-                      ),
-                    ),
-                  ],
-                ),
-                10.verticalSpace,
-                Row(
-                  children: [
-                    Text(
-                      'April 20,',
-                      style: TextStyle(
-                        fontFamily: AppFonts.family,
-                        fontFamilyFallback: AppFonts.fallback,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColor.textBody,
-                      ),
-                    ),
-                    10.horizontalSpace,
-                    GestureDetector(
-                      onTap: onTimeTap,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14.w,
-                          vertical: 8.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColor.primaryBlue,
-                          borderRadius: BorderRadius.circular(999.r),
-                        ),
-                        child: Text(
-                          item.time,
-                          style: TextStyle(
-                            fontFamily: AppFonts.family,
-                            fontFamilyFallback: AppFonts.fallback,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColor.whiteColor,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    10.horizontalSpace,
                     Row(
                       children: [
-                        Icon(
-                          Icons.star_rounded,
-                          color: const Color(0xFFFFB800),
-                          size: 18.sp,
+                        Expanded(
+                          child: Text(
+                            item.title,
+                            style: TextStyle(
+                              fontFamily: AppFonts.family,
+                              fontFamilyFallback: AppFonts.fallback,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColor.textDark,
+                            ),
+                          ),
                         ),
-                        4.horizontalSpace,
                         Text(
-                          '${item.rating} (${item.reviewCount})',
+                          item.id,
                           style: TextStyle(
                             fontFamily: AppFonts.family,
                             fontFamilyFallback: AppFonts.fallback,
@@ -285,12 +303,71 @@ class _AppointmentCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    10.verticalSpace,
+                    Row(
+                      children: [
+                        Text(
+                          item.date.isEmpty
+                              ? ''
+                              : '${item.date.split(',').first},',
+                          style: TextStyle(
+                            fontFamily: AppFonts.family,
+                            fontFamilyFallback: AppFonts.fallback,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppColor.textBody,
+                          ),
+                        ),
+                        10.horizontalSpace,
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 14.w,
+                            vertical: 8.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColor.primaryBlue,
+                            borderRadius: BorderRadius.circular(999.r),
+                          ),
+                          child: Text(
+                            item.time,
+                            style: TextStyle(
+                              fontFamily: AppFonts.family,
+                              fontFamilyFallback: AppFonts.fallback,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColor.whiteColor,
+                            ),
+                          ),
+                        ),
+                        10.horizontalSpace,
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.star_rounded,
+                              color: const Color(0xFFFFB800),
+                              size: 18.sp,
+                            ),
+                            4.horizontalSpace,
+                            Text(
+                              '${item.rating} (${item.reviewCount})',
+                              style: TextStyle(
+                                fontFamily: AppFonts.family,
+                                fontFamilyFallback: AppFonts.fallback,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                                color: AppColor.textBody,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

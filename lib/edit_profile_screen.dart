@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
 import 'package:freedom_smile/data/user_profile_data.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
+import 'package:freedom_smile/widgets/common/profile_image_picker.dart';
 import 'package:freedom_smile/widgets/profile/profile_updated_dialog.dart';
 import 'package:freedom_smile/widgets/profile/profile_widgets.dart';
 import 'package:get/get.dart';
@@ -27,6 +31,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   late String _gender;
   late String _countryCode;
+  String? _localPicturePath;
+  bool _loading = false;
 
   static const _genderValues = ['Male', 'Female', 'Other'];
   static const _countryCodes = ['+1', '+44', '+91', '+61'];
@@ -69,10 +75,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  UserProfile _buildUpdatedProfile() {
+  UserProfile _buildUpdatedProfile({String? profilePicture}) {
+    final first = _firstNameController.text.trim();
+    final last = _lastNameController.text.trim();
     return widget.profile.copyWith(
-      firstName: _firstNameController.text.trim(),
-      lastName: _lastNameController.text.trim(),
+      firstName: first,
+      lastName: last,
+      displayName: '$first $last'.trim(),
       address: _addressController.text.trim(),
       city: _cityController.text.trim(),
       state: _stateController.text.trim(),
@@ -80,19 +89,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       email: _emailController.text.trim(),
       countryCode: _countryCode,
       phone: _phoneController.text.trim(),
+      profilePicture: profilePicture ?? widget.profile.profilePicture,
     );
   }
 
   Future<void> _saveProfile() async {
-    final updatedProfile = _buildUpdatedProfile();
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      final phoneDigits =
+          _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+      final result = await AuthService().updateProfile(
+        {
+          'firstName': _firstNameController.text.trim(),
+          'lastName': _lastNameController.text.trim(),
+          'address': _addressController.text.trim(),
+          'city': _cityController.text.trim(),
+          'state': _stateController.text.trim(),
+          'gender': _gender,
+          'phone': phoneDigits,
+          'countryCode': _countryCode,
+        },
+        profilePicturePath:
+            ProfileImagePickerUtil.isLocalFile(_localPicturePath)
+                ? _localPicturePath
+                : null,
+      );
 
-    await ProfileUpdatedDialog.show(
-      context,
-      onContinue: () {
-        Navigator.of(context).pop();
-        Navigator.of(context).pop(updatedProfile);
-      },
-    );
+      final updated = _buildUpdatedProfile(
+        profilePicture:
+            result.user?.profilePicture ?? widget.profile.profilePicture,
+      );
+
+      if (!mounted) return;
+      await ProfileUpdatedDialog.show(
+        context,
+        onContinue: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).pop(updated);
+        },
+      );
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -129,6 +172,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           displayName: widget.profile.displayName,
                           email: widget.profile.profileEmail,
                           showCamera: true,
+                          profilePictureUrl: widget.profile.profilePicture,
+                          localPath: _localPicturePath,
+                          onImageChanged: (path) {
+                            setState(() => _localPicturePath = path);
+                          },
                         ),
                         24.verticalSpace,
                         Row(
@@ -228,8 +276,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 16.h),
                   child: ProfilePrimaryButton(
-                    label: 'next'.tr,
-                    onPressed: _saveProfile,
+                    label: _loading ? '...' : 'next'.tr,
+                    onPressed: _loading ? () {} : _saveProfile,
                   ),
                 ),
               ],

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
+import 'package:freedom_smile/data/services/user_service.dart';
 import 'package:freedom_smile/set_reminder_screen.dart';
 import 'package:freedom_smile/widgets/profile/profile_onboarding_widgets.dart';
 import 'package:get/get.dart';
@@ -20,16 +24,38 @@ class _RetainerFitScreenState extends State<RetainerFitScreen> {
 
   static const _wearOptions = ['Yes', 'Sometimes', 'Not really'];
 
-  final List<String> _selectedOptions = [];
+  String? _fit;
+  String? _wearsDaily;
+  bool _saving = false;
 
-  void _toggleOption(String option) {
-    setState(() {
-      if (_selectedOptions.contains(option)) {
-        _selectedOptions.remove(option);
-      } else {
-        _selectedOptions.add(option);
-      }
-    });
+  Future<void> _onNext() async {
+    if (_saving) return;
+    if (_fit == null || _wearsDaily == null) {
+      ApiSnackbar.error('Please answer both questions');
+      return;
+    }
+
+    setState(() => _saving = true);
+    try {
+      // Postman: PUT /user/retainer
+      await UserService().updateRetainer({
+        'fit': _fit,
+        'wearsDaily': _wearsDaily,
+      });
+      // Keep onboarding step in sync (create-profile step 3)
+      await AuthService().createProfile({
+        'step': 3,
+        'fit': _fit,
+        'wearsDaily': _wearsDaily,
+      });
+      Get.to(() => const SetReminderScreen());
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -37,7 +63,7 @@ class _RetainerFitScreenState extends State<RetainerFitScreen> {
     return ProfileOnboardingScaffold(
       title: 'Tell About Your Retainer',
       stepText: 'Step 3/5',
-      onNext: () => Get.to(() => const SetReminderScreen()),
+      onNext: _saving ? () {} : _onNext,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -48,8 +74,8 @@ class _RetainerFitScreenState extends State<RetainerFitScreen> {
               padding: EdgeInsets.only(bottom: 12.h),
               child: ProfileOptionButton(
                 label: option,
-                isSelected: _selectedOptions.contains(option),
-                onTap: () => _toggleOption(option),
+                isSelected: _fit == option,
+                onTap: () => setState(() => _fit = option),
               ),
             ),
           ),
@@ -61,11 +87,15 @@ class _RetainerFitScreenState extends State<RetainerFitScreen> {
               padding: EdgeInsets.only(bottom: 12.h),
               child: ProfileOptionButton(
                 label: option,
-                isSelected: _selectedOptions.contains(option),
-                onTap: () => _toggleOption(option),
+                isSelected: _wearsDaily == option,
+                onTap: () => setState(() => _wearsDaily = option),
               ),
             ),
           ),
+          if (_saving) ...[
+            20.verticalSpace,
+            const Center(child: CircularProgressIndicator()),
+          ],
         ],
       ),
     );

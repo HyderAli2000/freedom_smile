@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:freedom_smile/delete_account_screen.dart';
-import 'package:freedom_smile/utils/app_colors.dart';
-import 'package:freedom_smile/utils/app_fonts.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
 import 'package:freedom_smile/widgets/checkout/checkout_widgets.dart';
 import 'package:freedom_smile/widgets/settings/account_form_widgets.dart';
 import 'package:freedom_smile/widgets/settings/account_success_dialog.dart';
@@ -33,16 +33,40 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   Future<void> _resetPassword() async {
-    await AccountSuccessDialog.show(
-      context,
-      icon: Icons.lock_rounded,
-      message: 'password_changed_success'.tr,
-      buttonLabel: 'go_back'.tr,
-      onPressed: () {
-        Navigator.of(context).pop();
-        Get.back();
-      },
-    );
+    final oldPassword = _existingPasswordController.text;
+    final newPassword = _newPasswordController.text;
+    final confirm = _confirmPasswordController.text;
+    if (oldPassword.isEmpty || newPassword.isEmpty) {
+      ApiSnackbar.error('Please fill all password fields');
+      return;
+    }
+    if (newPassword != confirm) {
+      ApiSnackbar.error('Passwords do not match');
+      return;
+    }
+    try {
+      final result = await AuthService().changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+        confirmPassword: confirm,
+      );
+      await AccountSuccessDialog.show(
+        context,
+        icon: Icons.lock_rounded,
+        message: result.message.isNotEmpty
+            ? result.message
+            : 'password_changed_success'.tr,
+        buttonLabel: 'go_back'.tr,
+        onPressed: () {
+          Navigator.of(context).pop();
+          Get.back();
+        },
+      );
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    }
   }
 
   @override

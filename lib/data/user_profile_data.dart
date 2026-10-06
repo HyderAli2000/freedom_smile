@@ -11,6 +11,7 @@ class UserProfile {
     required this.email,
     required this.countryCode,
     required this.phone,
+    this.profilePicture,
   });
 
   final String displayName;
@@ -24,8 +25,9 @@ class UserProfile {
   final String email;
   final String countryCode;
   final String phone;
+  final String? profilePicture;
 
-  String get fullName => '$firstName $lastName';
+  String get fullName => '$firstName $lastName'.trim();
 
   String get formattedPhone => '$countryCode $phone';
 
@@ -41,6 +43,8 @@ class UserProfile {
     String? email,
     String? countryCode,
     String? phone,
+    String? profilePicture,
+    bool clearProfilePicture = false,
   }) {
     return UserProfile(
       displayName: displayName ?? this.displayName,
@@ -54,6 +58,8 @@ class UserProfile {
       email: email ?? this.email,
       countryCode: countryCode ?? this.countryCode,
       phone: phone ?? this.phone,
+      profilePicture:
+          clearProfilePicture ? null : (profilePicture ?? this.profilePicture),
     );
   }
 
@@ -70,5 +76,6 @@ class UserProfile {
     email: 'roy@domain.com',
     countryCode: '+1',
     phone: '234 567 890',
+    profilePicture: null,
   );
 }

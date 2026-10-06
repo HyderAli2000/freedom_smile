@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_map.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/content_service.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
+import 'package:get/get.dart';
 
 class AgreementsScreen extends StatefulWidget {
   const AgreementsScreen({super.key});
@@ -12,6 +16,54 @@ class AgreementsScreen extends StatefulWidget {
 
 class _AgreementsScreenState extends State<AgreementsScreen> {
   int _selectedTab = 0;
+  bool _loading = true;
+
+  String _terms = '';
+  String _privacy = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _terms = 'terms_content'.tr;
+    _privacy = 'privacy_content'.tr;
+    _loadCms();
+  }
+
+  Future<void> _loadCms() async {
+    try {
+      final results = await Future.wait([
+        ContentService().getCms('terms'),
+        ContentService().getCms('privacy'),
+      ]);
+
+      final termsPage = _pageFromResult(results[0].data);
+      final privacyPage = _pageFromResult(results[1].data);
+
+      if (mounted) {
+        setState(() {
+          final termsContent = ApiMap.str(
+            termsPage['content'] ?? termsPage['body'],
+          );
+          final privacyContent = ApiMap.str(
+            privacyPage['content'] ?? privacyPage['body'],
+          );
+          if (termsContent.isNotEmpty) _terms = termsContent;
+          if (privacyContent.isNotEmpty) _privacy = privacyContent;
+        });
+      }
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (_) {
+      // Keep .tr fallbacks.
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Map<String, dynamic> _pageFromResult(dynamic data) {
+    final root = ApiMap.map(data);
+    return ApiMap.map(root['page'] ?? root);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,26 +87,26 @@ class _AgreementsScreenState extends State<AgreementsScreen> {
                   children: [
                     _AgreementTabs(
                       selectedIndex: _selectedTab,
-
                       onTabSelected: (index) {
                         setState(() => _selectedTab = index);
                       },
                     ),
                     Expanded(
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
-                        child: Text(
-                          _selectedTab == 0
-                              ? 'terms_content'.tr
-                              : 'privacy_content'.tr,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                            color: AppColor.agreementText,
-                            height: 1.6,
-                          ),
-                        ),
-                      ),
+                      child: _loading
+                          ? const Center(child: CircularProgressIndicator())
+                          : SingleChildScrollView(
+                              padding:
+                                  EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
+                              child: Text(
+                                _selectedTab == 0 ? _terms : _privacy,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColor.agreementText,
+                                  height: 1.6,
+                                ),
+                              ),
+                            ),
                     ),
                   ],
                 ),

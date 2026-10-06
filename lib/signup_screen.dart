@@ -2,6 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/agreements.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
 import 'package:freedom_smile/login_screen.dart';
 import 'package:freedom_smile/otp_verification_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
@@ -19,9 +22,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _authService = AuthService();
   bool _agreeToTerms = true;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _loading = false;
 
   @override
   void dispose() {
@@ -29,6 +34,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _signup() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirm = _confirmPasswordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ApiSnackbar.error('Please enter email and password');
+      return;
+    }
+    if (password != confirm) {
+      ApiSnackbar.error('Passwords do not match');
+      return;
+    }
+    if (!_agreeToTerms) {
+      ApiSnackbar.error('Please accept Terms & Privacy Policy');
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      final result = await _authService.signup(
+        email: email,
+        password: password,
+        termsAccepted: _agreeToTerms,
+      );
+      ApiSnackbar.success(result.message);
+      Get.to(() => OtpVerificationScreen(email: email));
+    } on ApiException catch (e) {
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -123,10 +164,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           28.verticalSpace,
           AuthPrimaryButton(
-            label: 'sign_up_button'.tr,
-            onPressed: () => Get.to(
-              () => OtpVerificationScreen(email: _emailController.text.trim()),
-            ),
+            label: _loading ? '...' : 'sign_up_button'.tr,
+            onPressed: _loading ? () {} : _signup,
           ),
           24.verticalSpace,
           AuthLinkText(

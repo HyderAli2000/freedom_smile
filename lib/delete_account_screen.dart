@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:freedom_smile/core/api/api_exception.dart';
+import 'package:freedom_smile/core/storage/app_storage.dart';
+import 'package:freedom_smile/core/utils/api_snackbar.dart';
+import 'package:freedom_smile/data/services/auth_service.dart';
 import 'package:freedom_smile/login_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
@@ -16,9 +20,6 @@ class DeleteAccountScreen extends StatefulWidget {
 }
 
 class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
-  static const _email = 'emailly2023@gmail.com';
-  static const _correctPassword = '123';
-
   static const _reasonKeys = [
     'delete_reason_privacy',
     'delete_reason_switching',
@@ -43,25 +44,33 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
 
   Future<void> _confirmDelete() async {
     final password = _passwordController.text.trim();
-    if (password != _correctPassword) {
-      setState(() {
-        _passwordError = 'incorrect_password'.tr;
-      });
+    if (password.isEmpty) {
+      setState(() => _passwordError = 'incorrect_password'.tr);
       return;
     }
 
     setState(() => _passwordError = null);
 
-    await AccountSuccessDialog.show(
-      context,
-      icon: Icons.logout_rounded,
-      message: 'account_deleted_success'.tr,
-      buttonLabel: 'login_account'.tr,
-      onPressed: () {
-        Navigator.of(context).pop();
-        Get.offAll(() => const LoginScreen());
-      },
-    );
+    try {
+      final result = await AuthService().deleteAccount(password: password);
+      await AccountSuccessDialog.show(
+        context,
+        icon: Icons.logout_rounded,
+        message: result.message.isNotEmpty
+            ? result.message
+            : 'account_deleted_success'.tr,
+        buttonLabel: 'login_account'.tr,
+        onPressed: () {
+          Navigator.of(context).pop();
+          Get.offAll(() => const LoginScreen());
+        },
+      );
+    } on ApiException catch (e) {
+      setState(() => _passwordError = e.message);
+      ApiSnackbar.fromException(e);
+    } catch (e) {
+      ApiSnackbar.error(e.toString());
+    }
   }
 
   @override
@@ -110,7 +119,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             ),
             16.verticalSpace,
             Text(
-              _email,
+              AppStorage.email ?? '',
               style: TextStyle(
                 fontFamily: AppFonts.family,
                 fontFamilyFallback: AppFonts.fallback,
