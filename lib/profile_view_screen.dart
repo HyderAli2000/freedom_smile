@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/core/api/api_exception.dart';
 import 'package:freedom_smile/core/storage/app_storage.dart';
@@ -9,6 +10,7 @@ import 'package:freedom_smile/data/user_profile_data.dart';
 import 'package:freedom_smile/edit_profile_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
+import 'package:freedom_smile/utils/app_system_ui.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/app_network_image.dart';
@@ -106,43 +108,46 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.whiteColor,
-      body: SafeArea(
-        child: Container(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppSystemUi.overlay,
+      child: Scaffold(
+        backgroundColor: AppColor.whiteColor,
+        body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage(AssetImages.bgOthers),
               fit: BoxFit.cover,
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _ProfileTopSection(
-                displayName: _profile.displayName,
-                email: _profile.profileEmail,
-                profilePicture: _profile.profilePicture,
-                onAvatarTap: _openEditProfile,
-              ),
-              if (_loading)
-                const LinearProgressIndicator(minHeight: 2)
-              else
-                SizedBox(height: 2.h),
-              Expanded(
-                child: SingleChildScrollView(
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _ProfileTopSection(
+                  displayName: _profile.displayName,
+                  email: _profile.profileEmail,
+                  profilePicture: _profile.profilePicture,
+                  onAvatarTap: _openEditProfile,
+                ),
+                if (_loading)
+                  const LinearProgressIndicator(minHeight: 2)
+                else
+                  SizedBox(height: 2.h),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
+                    child: _ProfileDetailsCard(profile: _profile),
+                  ),
+                ),
+                Container(
                   padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
-                  child: _ProfileDetailsCard(profile: _profile),
+                  child: ProfilePrimaryButton(
+                    label: 'edit_personal_information'.tr,
+                    onPressed: _openEditProfile,
+                  ),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
-                child: ProfilePrimaryButton(
-                  label: 'edit_personal_information'.tr,
-                  onPressed: _openEditProfile,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

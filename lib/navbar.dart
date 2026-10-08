@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:freedom_smile/add_map_home.dart';
 import 'package:freedom_smile/home_screen.dart';
 import 'package:freedom_smile/notifications_screen.dart';
@@ -6,6 +7,7 @@ import 'package:freedom_smile/referral_screen.dart';
 import 'package:freedom_smile/retainers_home.dart';
 import 'package:freedom_smile/settings_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
+import 'package:freedom_smile/utils/app_system_ui.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/navbar/app_bottom_nav_bar.dart';
@@ -37,30 +39,33 @@ class _NavbarState extends State<Navbar> {
             final isMapTab =
                 controller.currentIndex == BottomNavController.mapIndex;
 
-            return Scaffold(
-              backgroundColor: AppColor.whiteColor,
-              extendBody: true,
-              appBar: AppHomeAppBar(
-                onNotificationTap: () =>
-                    Get.to(() => const NotificationsScreen()),
-              ),
-              body: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (!isMapTab)
-                    Image.asset(
-                      AssetImages.bgOthers,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
-                  controller.pages[controller.currentIndex],
-                ],
-              ),
-              bottomNavigationBar: AppBottomNavBar(
-                currentIndex: controller.currentIndex,
-                items: controller.navItems,
-                onTap: controller.itemSelect,
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: AppSystemUi.overlay,
+              child: Scaffold(
+                backgroundColor: AppColor.whiteColor,
+                extendBody: true,
+                appBar: AppHomeAppBar(
+                  onNotificationTap: () =>
+                      Get.to(() => const NotificationsScreen()),
+                ),
+                body: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (!isMapTab)
+                      Image.asset(
+                        AssetImages.bgOthers,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                    controller.pages[controller.currentIndex],
+                  ],
+                ),
+                bottomNavigationBar: AppBottomNavBar(
+                  currentIndex: controller.currentIndex,
+                  items: controller.navItems,
+                  onTap: controller.itemSelect,
+                ),
               ),
             );
           },

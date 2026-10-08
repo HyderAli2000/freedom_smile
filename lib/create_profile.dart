@@ -31,7 +31,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
   late final TextEditingController _emailController;
-  final _phoneController = TextEditingController(text: '+123 456 7890');
+  final _phoneController = TextEditingController(text: '');
 
   String? _gender;
   String _countryCode = '+1';
@@ -72,7 +72,10 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
 
     setState(() => _loading = true);
     try {
-      final phoneDigits = _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+      final phoneDigits = _phoneController.text.replaceAll(
+        RegExp(r'[^\d]'),
+        '',
+      );
       final profileBody = {
         'step': 1,
         'firstName': firstName,
@@ -224,9 +227,9 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                               child: _ProfileInputField(
                                 controller: _phoneController,
                                 hintText: 'Phone Number',
-                                readOnly: true,
+                                readOnly: false,
                                 keyboardType: TextInputType.phone,
-                                suffix: const _VerifiedBadge(),
+                                // suffix: const _VerifiedBadge(),
                               ),
                             ),
                           ],

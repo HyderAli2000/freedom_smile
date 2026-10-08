@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
+import 'package:freedom_smile/utils/app_system_ui.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:freedom_smile/widgets/common/page_header.dart';
 
@@ -19,25 +21,27 @@ class CheckoutScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(AssetImages.bgOthers),
-              fit: BoxFit.cover,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppSystemUi.overlay,
+      child: Scaffold(
+        body: SafeArea(
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AssetImages.bgOthers),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                PageHeader(title: title),
-                Expanded(child: body),
-                if (bottom != null) bottom!,
-              ],
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PageHeader(title: title),
+                  Expanded(child: body),
+                  if (bottom != null) bottom!,
+                ],
+              ),
             ),
           ),
         ),

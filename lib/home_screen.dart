@@ -144,6 +144,7 @@ class RetainerStatusCard extends StatelessWidget {
   });
 
   final String? displayMonths;
+
   /// Kept for callers; Order Now is always shown so users can reorder.
   final bool orderNow;
   final VoidCallback? onOrderNow;

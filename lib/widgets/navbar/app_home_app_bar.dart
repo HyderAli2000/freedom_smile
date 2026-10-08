@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/core/storage/app_storage.dart';
+import 'package:freedom_smile/profile_view_screen.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
+import 'package:freedom_smile/utils/app_system_ui.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/widgets/common/app_network_image.dart';
 import 'package:get/get.dart';
@@ -33,48 +35,59 @@ class AppHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       shadowColor: Colors.transparent,
+      systemOverlayStyle: AppSystemUi.overlay,
       toolbarHeight: 72.h,
       titleSpacing: 0,
       title: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
           children: [
-            Container(
-              padding: EdgeInsets.all(2.w),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColor.primaryBlue,
-              ),
-              child: AppCircleAvatar(
-                radius: 24.r,
-                source: picture,
-                backgroundColor: AppColor.profileOptionBg,
+            GestureDetector(
+              onTap: () {
+                Get.to(() => const ProfileViewScreen());
+              },
+              child: Container(
+                padding: EdgeInsets.all(2.w),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColor.primaryBlue,
+                ),
+                child: AppCircleAvatar(
+                  radius: 24.r,
+                  source: picture,
+                  backgroundColor: AppColor.profileOptionBg,
+                ),
               ),
             ),
             12.horizontalSpace,
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'hi_user'.trParams({'name': name}),
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppColor.textDark,
+              child: GestureDetector(
+                onTap: () {
+                  Get.to(() => const ProfileViewScreen());
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'hi_user'.trParams({'name': name}),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColor.textDark,
+                      ),
                     ),
-                  ),
-                  2.verticalSpace,
-                  Text(
-                    'keep_healthy_smile'.tr,
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w400,
-                      color: AppColor.textBody,
+                    2.verticalSpace,
+                    Text(
+                      'keep_healthy_smile'.tr,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w400,
+                        color: AppColor.textBody,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             GestureDetector(

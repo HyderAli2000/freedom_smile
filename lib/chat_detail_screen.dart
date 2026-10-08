@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
+import 'package:freedom_smile/utils/app_system_ui.dart';
 import 'package:freedom_smile/utils/assets_icons.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:get/get.dart';
@@ -91,7 +92,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: _isEmergencyMode
           ? SystemUiOverlayStyle.light
-          : SystemUiOverlayStyle.dark,
+          : AppSystemUi.overlay,
       child: Scaffold(
         backgroundColor: _isEmergencyMode ? _emergencyRed : AppColor.whiteColor,
         body: SafeArea(

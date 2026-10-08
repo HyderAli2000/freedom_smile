@@ -253,10 +253,16 @@ class AuthService {
     }
   }
 
-  Future<ApiResult> deleteAccount({String? password}) async {
+  Future<ApiResult> deleteAccount({
+    String? password,
+    required String reason,
+    String? reasonText,
+  }) async {
     final res = await _client.delete(
       ApiEndpoints.deleteAccount,
       data: {
+        'reason': reason,
+        'reasonText': reasonText ?? '',
         if (password != null && password.isNotEmpty) 'password': password,
       },
     );

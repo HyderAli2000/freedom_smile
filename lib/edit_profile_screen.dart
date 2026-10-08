@@ -38,10 +38,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   static const _countryCodes = ['+1', '+44', '+91', '+61'];
 
   List<String> get _genderItems => [
-        'gender_male'.tr,
-        'gender_female'.tr,
-        'gender_other'.tr,
-      ];
+    'gender_male'.tr,
+    'gender_female'.tr,
+    'gender_other'.tr,
+  ];
 
   String get _genderDisplayValue {
     final index = _genderValues.indexOf(_gender);
@@ -97,8 +97,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_loading) return;
     setState(() => _loading = true);
     try {
-      final phoneDigits =
-          _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+      final phoneDigits = _phoneController.text.replaceAll(
+        RegExp(r'[^\d]'),
+        '',
+      );
       final result = await AuthService().updateProfile(
         {
           'firstName': _firstNameController.text.trim(),
@@ -112,8 +114,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         },
         profilePicturePath:
             ProfileImagePickerUtil.isLocalFile(_localPicturePath)
-                ? _localPicturePath
-                : null,
+            ? _localPicturePath
+            : null,
       );
 
       final updated = _buildUpdatedProfile(

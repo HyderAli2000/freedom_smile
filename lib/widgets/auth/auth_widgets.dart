@@ -1,8 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/agreements.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
+import 'package:freedom_smile/utils/app_system_ui.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:get/get.dart';
 
@@ -14,9 +16,11 @@ class AuthLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.whiteColor,
-      body: SafeArea(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppSystemUi.overlay,
+      child: Scaffold(
+        backgroundColor: AppColor.whiteColor,
+        body: SafeArea(
         child: Column(
           children: [
             Padding(
@@ -73,6 +77,7 @@ class AuthLayout extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

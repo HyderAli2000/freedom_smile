@@ -9,7 +9,7 @@ import 'package:freedom_smile/utils/app_colors.dart';
 import 'package:freedom_smile/utils/app_fonts.dart';
 import 'package:freedom_smile/widgets/checkout/checkout_widgets.dart';
 import 'package:freedom_smile/widgets/settings/account_form_widgets.dart';
-import 'package:freedom_smile/widgets/settings/account_success_dialog.dart';
+// import 'package:freedom_smile/widgets/settings/account_success_dialog.dart';
 import 'package:get/get.dart';
 
 class DeleteAccountScreen extends StatefulWidget {
@@ -20,13 +20,14 @@ class DeleteAccountScreen extends StatefulWidget {
 }
 
 class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
-  static const _reasonKeys = [
-    'delete_reason_privacy',
-    'delete_reason_switching',
-    'delete_reason_notifications',
-    'delete_reason_technical',
-    'other',
-  ];
+  /// Must match API enum exactly (English).
+  static const _reasonOptions = <String, String>{
+    'delete_reason_privacy': 'Privacy Concerns',
+    'delete_reason_switching': 'Switching to another service',
+    'delete_reason_notifications': 'Too many notifications',
+    'delete_reason_technical': "I'm facing technical issues",
+    'other': 'Other',
+  };
 
   final _otherReasonController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -49,24 +50,43 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       return;
     }
 
+    final reason = _reasonOptions[_selectedReason] ?? 'Other';
+    final otherText = _otherReasonController.text.trim();
+    if (reason == 'Other' && otherText.isEmpty) {
+      ApiSnackbar.error('Please type your reason');
+      return;
+    }
+
     setState(() => _passwordError = null);
 
     try {
-      final result = await AuthService().deleteAccount(password: password);
-      await AccountSuccessDialog.show(
-        context,
-        icon: Icons.logout_rounded,
-        message: result.message.isNotEmpty
-            ? result.message
-            : 'account_deleted_success'.tr,
-        buttonLabel: 'login_account'.tr,
-        onPressed: () {
-          Navigator.of(context).pop();
-          Get.offAll(() => const LoginScreen());
-        },
+      // API: reason = enum; when Other, reasonText is required.
+      await AuthService().deleteAccount(
+        password: password,
+        reason: reason,
+        reasonText: reason == 'Other' ? otherText : '',
       );
+      // await AccountSuccessDialog.show(
+      //   context,
+      //   icon: Icons.logout_rounded,
+      //   message: result.message.isNotEmpty
+      //       ? result.message
+      //       : 'account_deleted_success'.tr,
+      //   buttonLabel: 'login_account'.tr,
+      //   onPressed: () {
+      //     Navigator.of(context).pop();
+      //     Get.offAll(() => const LoginScreen());
+      //   },
+      // );
+      Get.offAll(() => const LoginScreen());
     } on ApiException catch (e) {
-      setState(() => _passwordError = e.message);
+      final passwordErr = e.errors
+          .where((err) => (err.field ?? '').toLowerCase().contains('password'))
+          .map((err) => err.message)
+          .join('\n');
+      setState(() {
+        _passwordError = passwordErr.isNotEmpty ? passwordErr : null;
+      });
       ApiSnackbar.fromException(e);
     } catch (e) {
       ApiSnackbar.error(e.toString());
@@ -98,7 +118,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               ),
             ),
             12.verticalSpace,
-            ..._reasonKeys.map(
+            ..._reasonOptions.keys.map(
               (reasonKey) => _ReasonRadioTile(
                 label: reasonKey.tr,
                 isSelected: _selectedReason == reasonKey,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
+import 'package:freedom_smile/utils/app_system_ui.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:get/get.dart';
 
@@ -22,28 +24,34 @@ class ProfileOnboardingScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(AssetImages.bgOthers),
-            fit: BoxFit.cover,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppSystemUi.overlay,
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(AssetImages.bgOthers),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              ProfileOnboardingHeader(title: title, stepText: stepText),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
-                  child: child,
+          child: SafeArea(
+            child: Column(
+              children: [
+                ProfileOnboardingHeader(title: title, stepText: stepText),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
+                    child: child,
+                  ),
                 ),
-              ),
-              ProfileOnboardingFooter(onSkip: onSkip ?? onNext, onNext: onNext),
-            ],
+                ProfileOnboardingFooter(
+                  onSkip: onSkip ?? onNext,
+                  onNext: onNext,
+                ),
+              ],
+            ),
           ),
         ),
       ),

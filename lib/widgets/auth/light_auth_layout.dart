@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:freedom_smile/utils/app_colors.dart';
+import 'package:freedom_smile/utils/app_system_ui.dart';
 import 'package:freedom_smile/utils/assets_images.dart';
 import 'package:get/get.dart';
 
@@ -22,36 +24,39 @@ class LightAuthScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(AssetImages.bgOthers),
-            fit: BoxFit.cover,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppSystemUi.overlay,
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(AssetImages.bgOthers),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _LightAuthHeader(title: title, stepText: stepText),
-              if (showLogo) ...[
-                12.verticalSpace,
-                Image.asset(
-                  AssetImages.logo,
-                  height: 90.h,
-                  fit: BoxFit.contain,
+          child: SafeArea(
+            child: Column(
+              children: [
+                _LightAuthHeader(title: title, stepText: stepText),
+                if (showLogo) ...[
+                  12.verticalSpace,
+                  Image.asset(
+                    AssetImages.logo,
+                    height: 90.h,
+                    fit: BoxFit.contain,
+                  ),
+                ],
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 16.h),
+                    child: child,
+                  ),
                 ),
+                if (bottom != null) bottom!,
               ],
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 16.h),
-                  child: child,
-                ),
-              ),
-              if (bottom != null) bottom!,
-            ],
+            ),
           ),
         ),
       ),
@@ -198,73 +203,76 @@ class PermissionAccessScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(AssetImages.bgOthers),
-            fit: BoxFit.cover,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppSystemUi.overlay,
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(AssetImages.bgOthers),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32.w),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 150.w,
-                        height: 150.w,
-                        decoration: const BoxDecoration(
-                          color: AppColor.primaryBlue,
-                          shape: BoxShape.circle,
+          child: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32.w),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 150.w,
+                          height: 150.w,
+                          decoration: const BoxDecoration(
+                            color: AppColor.primaryBlue,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Image.asset(
+                            iconPath,
+                            width: 46.w,
+                            height: 46.h,
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                        alignment: Alignment.center,
-                        child: Image.asset(
-                          iconPath,
-                          width: 46.w,
-                          height: 46.h,
-                          fit: BoxFit.contain,
+                        28.verticalSpace,
+                        Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColor.textDark,
+                          ),
                         ),
-                      ),
-                      28.verticalSpace,
-                      Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColor.textDark,
+                        12.verticalSpace,
+                        Text(
+                          description,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppColor.textBody,
+                            height: 1.45,
+                          ),
                         ),
-                      ),
-                      12.verticalSpace,
-                      Text(
-                        description,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w500,
-                          color: AppColor.textBody,
-                          height: 1.45,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 16.h),
-                child: LightAuthPrimaryButton(
-                  label: buttonLabel,
-                  onPressed: onPressed,
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 16.h),
+                  child: LightAuthPrimaryButton(
+                    label: buttonLabel,
+                    onPressed: onPressed,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
